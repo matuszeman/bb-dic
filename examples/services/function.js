@@ -1,7 +1,8 @@
-const classA = require('./classA');
+const consumer = require('./consumer');
+
 module.exports = function() {
-  console.log('Runnign ClassA.test() from the function');//XXX
-  classA.test();
+  console.log('Running Consumer.test() from the function');//XXX
+  return consumer.test();
 };
 
 module.exports['asyncInit'] = function*() {

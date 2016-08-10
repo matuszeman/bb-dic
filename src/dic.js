@@ -52,7 +52,7 @@ module.exports = class Dic {
   get(name, opts = {}) {
     const def = this.instances[name];
     if (!def) {
-      throw new Error(`Instance ${name} not defined`);
+      throw new Error(`Dic: Instance "${name}" not defined`);
     }
 
     if (!opts.ignoreInit && def.opts.asyncInit && !def.initialized) {

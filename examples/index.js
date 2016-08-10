@@ -1,21 +1,6 @@
 const co = require('co');
 
-const {Dic, DicRequireLoader} = require('./../index');
-
-//console.log(global);//XXX
-
-const dic = new Dic();
-//dic.instance('services/function', function() {
-//  console.log('Yeaah!');//XXX
-//});
-
-const requireLoader = new DicRequireLoader({
-  rootDir: __dirname,
-  exclude: [
-    'src'
-  ]
-}, dic);
-requireLoader.enable();
+const { dic } = require('./bootstrap');
 
 console.log('====================== APP =======================');//XXX
 

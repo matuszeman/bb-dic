@@ -9,7 +9,11 @@
   "author": "Matus Zeman <matus.zeman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "co": "^4.6.0",
     "lodash": "^4.14.2"
+  },
+  "devDependencies": {
+    "co": "^4.6.0",
+    "co-mocha": "^1.1.3",
+    "mocha": "^3.0.2"
   }
 }

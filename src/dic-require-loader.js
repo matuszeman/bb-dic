@@ -25,7 +25,7 @@ module.exports = class DicRequireLoader {
       // node_modules module
       if (requestedModulePath[0] !== '.') {
         if (self.dic.has(requestedModulePath)) {
-          console.log(`DicRequireLoader: Module "${moduleId}" instance loaded from Dic [${this.filename}]`);//XXX
+          console.log(`DicRequireLoader: Module "${moduleId}" loaded from Dic [${this.filename}]`);//XXX
           return self.getInstance(requestedModulePath);
         }
 
