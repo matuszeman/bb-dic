@@ -5,7 +5,7 @@ module.exports = class Consumer {
   }
 
   *asyncInit() {
-    console.log('Consumer async initialization');//XXX
+    console.log('>>> Consumer async initialization');//XXX
     this.init = true;
   }
 

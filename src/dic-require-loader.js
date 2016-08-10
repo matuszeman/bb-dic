@@ -22,14 +22,16 @@ module.exports = class DicRequireLoader {
     Module.prototype.require = function() {
       const requestedModulePath = arguments[0];
 
-      // node_modules module
-      if (requestedModulePath[0] !== '.') {
+      // TODO system node_modules modules - this should be done more clever
+      if (requestedModulePath[0] !== '.' ||                     //not relative path => system module
+        this.filename.indexOf('/node_modules/') !== -1 ||       //requires from system modules (mocha)
+        requestedModulePath.indexOf('/node_modules/') !== -1) { //app requires of system modules (mocha)
         if (self.dic.has(requestedModulePath)) {
-          console.log(`DicRequireLoader: Module "${moduleId}" loaded from Dic [${this.filename}]`);//XXX
+          console.log(`DicRequireLoader: System module "${moduleId}" loaded from Dic [${this.filename}]`);//XXX
           return self.getInstance(requestedModulePath);
         }
 
-        console.log(`DicRequireLoader: Ignoring module "${requestedModulePath}" [${this.filename}]`);//XXX
+        //console.log(`DicRequireLoader: System module "${requestedModulePath}" ignored [${this.filename}]`);//XXX
         return DicRequireLoader.originalRequire.apply(this, arguments);
       }
 

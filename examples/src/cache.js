@@ -1,6 +1,6 @@
 module.exports = class Cache {
   *asyncInit() {
-    console.log('Cache async initialization');//XXX
+    console.log('>>> Cache async initialization');//XXX
     this.dbConnection = true;
   }
 

@@ -1,16 +1,14 @@
-const { dic } = require('./bootstrap');
+require('./bootstrap');
+
+const expect = require('chai').expect;
 
 const consumer = require('../services/consumer');
 
-describe('Consumer app instance', function() {
-  before(function*() {
-    yield dic.asyncInit();
-  });
-
+describe('"Consumer" app instance', function() {
   describe('.test()', function() {
     it('uses test stub cache', function*() {
       const value = consumer.test();
-      console.log(value);//XXX
+      expect(value).equal('TEST CACHE VALUE');
     });
   });
 });

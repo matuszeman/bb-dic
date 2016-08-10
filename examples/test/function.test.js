@@ -1,10 +1,12 @@
-const { dic } = require('./bootstrap');
+require('./bootstrap');
+
+const expect = require('chai').expect;
 
 const fn = require('../services/function');
 
-describe('Consumer app instance', function() {
+describe('"function" app instance', function() {
   it('calls consumer.test()', function*() {
     const value = fn();
-    console.log(value);//XXX
+    expect(value).equal('TEST CACHE VALUE');
   });
 });
