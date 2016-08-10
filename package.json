@@ -1,0 +1,15 @@
+{
+  "name": "bb-dic",
+  "version": "0.1.0",
+  "description": "TODO - A container",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matus Zeman <matus.zeman@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "co": "^4.6.0",
+    "lodash": "^4.14.2"
+  }
+}
