@@ -1,6 +1,6 @@
 {
   "name": "bb-dic",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "TODO - A container",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "author": "Matus Zeman <matus.zeman@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "is-generator": "^1.0.3",
     "lodash": "^4.14.2"
   },
   "devDependencies": {

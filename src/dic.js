@@ -7,7 +7,7 @@ module.exports = class Dic {
   }
 
   factory(name, factory, opts = {}) {
-    console.log(`Dic: Adding factory "${name}"`);//XXX
+    console.log(`Dic: Adding factory "${name}" Options: `, opts);//XXX
     this.instances[name] = {
       type: 'factory',
       fn: factory,
@@ -16,7 +16,7 @@ module.exports = class Dic {
   }
 
   instance(name, ins, opts = {}) {
-    console.log(`Dic: Adding "${name}"`);//XXX
+    console.log(`Dic: Adding "${name}" Options: `, opts);//XXX
 
     this.instances[name] = {
       type: 'instance',
@@ -38,7 +38,7 @@ module.exports = class Dic {
         if (_.isString(def.opts.asyncInit)) {
           initMethod = def.opts.asyncInit;
         }
-        yield ins[initMethod]();
+        yield ins[initMethod];
         def.initialized = true;
       }
     }

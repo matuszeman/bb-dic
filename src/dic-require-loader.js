@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const path = require('path');
+const isGeneratorFn = require('is-generator').fn;
 
 module.exports = class DicRequireLoader {
   constructor(opts, dic) {
@@ -46,14 +47,14 @@ module.exports = class DicRequireLoader {
         for (const exc of self.options.exclude) {
           //TODO this should be done much smarter - glob?
           if (relativeModulePath.indexOf(exc) === 0) {
-            console.log(`DicRequireLoader: Module "${moduleId}" excluded [${this.filename}]`);//XXX
+            //console.log(`DicRequireLoader: Module "${moduleId}" excluded [${this.filename}]`);//XXX
             return DicRequireLoader.originalRequire.apply(this, arguments);
           }
         }
       }
 
       if (self.dic.has(moduleId)) {
-        console.log(`DicRequireLoader: Module "${moduleId}" instance loaded from Dic [${this.filename}]`);//XXX
+        //console.log(`DicRequireLoader: Module "${moduleId}" instance loaded from Dic [${this.filename}]`);//XXX
         return self.getInstance(moduleId);
       }
 
@@ -61,8 +62,8 @@ module.exports = class DicRequireLoader {
 
       const opts = {};
 
-      //TODO auto-detect asyncInit - should test for generator
-      if (_.isFunction(inc.asyncInit)) {
+      //TODO auto-detect asyncInit - should test for generator, promise?
+      if (inc.asyncInit) {
         opts.asyncInit = 'asyncInit';
       }
 
