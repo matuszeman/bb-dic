@@ -1,6 +1,10 @@
 module.exports = class Cache {
+  constructor(options) {
+    this.options = options;
+  }
+
   *asyncInit() {
-    console.log('>>> Cache async initialization');//XXX
+    console.log('>>> Cache async init. Options: ', this.options);//XXX
     this.dbConnection = true;
   }
 

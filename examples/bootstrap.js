@@ -10,6 +10,16 @@ const requireLoader = new DicRequireLoader({
 }, dic);
 requireLoader.enable();
 
+//app config
+dic.instance('./service-config', {
+  cache: {
+    ttl: 1000
+  },
+  consumer: {
+    my: 'APP options'
+  }
+});
+
 module.exports = {
   dic
 };

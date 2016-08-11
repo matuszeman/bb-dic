@@ -1,2 +1,3 @@
 const Cache = require('../src/cache');
-module.exports = new Cache();
+const config = require('./../service-config');
+module.exports = new Cache(config.cache);

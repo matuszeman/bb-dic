@@ -5,7 +5,7 @@ const { dic } = require('./bootstrap');
 console.log('====================== APP =======================');//XXX
 
 const fn = require('./services/function');
-dic.alias('services/function', 'function');
+//dic.alias('./services/function', 'function');
 
 console.log('====================== RUN =======================');//XXX
 

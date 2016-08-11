@@ -1,2 +1,3 @@
 const Consumer = require('../src/consumer');
-module.exports = new Consumer(require('./cache'));
+const config = require('../service-config');
+module.exports = new Consumer(config.consumer, require('./cache'));

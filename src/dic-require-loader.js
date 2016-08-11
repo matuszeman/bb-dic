@@ -3,7 +3,9 @@ const path = require('path');
 
 module.exports = class DicRequireLoader {
   constructor(opts, dic) {
-    this.options = opts;
+    this.options = _.defaults(opts, {
+      modulePrefix: './'
+    });
     this.dic = dic;
   }
 
@@ -27,7 +29,7 @@ module.exports = class DicRequireLoader {
         this.filename.indexOf('/node_modules/') !== -1 ||       //requires from system modules (mocha)
         requestedModulePath.indexOf('/node_modules/') !== -1) { //app requires of system modules (mocha)
         if (self.dic.has(requestedModulePath)) {
-          console.log(`DicRequireLoader: System module "${moduleId}" loaded from Dic [${this.filename}]`);//XXX
+          console.log(`DicRequireLoader: System module "${requestedModulePath}" loaded from Dic [${this.filename}]`);//XXX
           return self.getInstance(requestedModulePath);
         }
 
@@ -37,12 +39,13 @@ module.exports = class DicRequireLoader {
 
       const currentDir = path.dirname(this.filename);
       const modulePath = path.resolve(currentDir + '/' + requestedModulePath);
-      const moduleId = path.relative(self.options.rootDir, modulePath);
+      const relativeModulePath = path.relative(self.options.rootDir, modulePath);
+      const moduleId = self.options.modulePrefix + relativeModulePath;
 
       if (self.options.exclude) {
         for (const exc of self.options.exclude) {
           //TODO this should be done much smarter - glob?
-          if (moduleId.indexOf(exc) === 0) {
+          if (relativeModulePath.indexOf(exc) === 0) {
             console.log(`DicRequireLoader: Module "${moduleId}" excluded [${this.filename}]`);//XXX
             return DicRequireLoader.originalRequire.apply(this, arguments);
           }

@@ -1,11 +1,12 @@
 module.exports = class Consumer {
-  constructor(cache) {
+  constructor(options, cache) {
+    this.options = options;
     this.cache = cache;
     this.init = false;
   }
 
   *asyncInit() {
-    console.log('>>> Consumer async initialization');//XXX
+    console.log('>>> Consumer async init. Options: ', this.options);//XXX
     this.init = true;
   }
 
