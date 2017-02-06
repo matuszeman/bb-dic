@@ -17,6 +17,10 @@ module.exports = class DicRequireLoader {
   }
 
   enable() {
+    if (DicRequireLoader.originalRequire) {
+      throw new Error('DicRequireLoader already enabled');
+    }
+
     const self = this;
     //http://stackoverflow.com/questions/27948300/override-the-require-function
     var Module = require('module');
@@ -43,34 +47,59 @@ module.exports = class DicRequireLoader {
       const relativeModulePath = path.relative(self.options.rootDir, modulePath);
       const moduleId = self.options.modulePrefix + relativeModulePath;
 
-      if (self.options.exclude) {
-        for (const exc of self.options.exclude) {
-          //TODO this should be done much smarter - glob?
-          if (relativeModulePath.indexOf(exc) === 0) {
-            //console.log(`DicRequireLoader: Module "${moduleId}" excluded [${this.filename}]`);//XXX
-            return DicRequireLoader.originalRequire.apply(this, arguments);
-          }
-        }
-      }
-
       if (self.dic.has(moduleId)) {
         //console.log(`DicRequireLoader: Module "${moduleId}" instance loaded from Dic [${this.filename}]`);//XXX
         return self.getInstance(moduleId);
       }
 
-      const inc = DicRequireLoader.originalRequire.apply(this, arguments);
-
-      const opts = {};
-
-      //TODO auto-detect asyncInit - should test for generator, promise?
-      if (inc.asyncInit) {
-        opts.asyncInit = 'asyncInit';
+      let dicAllowed = true;
+      if (self.options.include) {
+        dicAllowed = false;
+        for (const incPath of self.options.include) {
+          //TODO this should be done much smarter - glob?
+          if (relativeModulePath.indexOf(incPath) === 0) {
+            dicAllowed = true;
+            break;
+          }
+        }
       }
 
-      self.dic.instance(moduleId, inc, opts);
+      if (self.options.exclude) {
+        for (const excPath of self.options.exclude) {
+          //TODO this should be done much smarter - glob?
+          if (relativeModulePath.indexOf(excPath) === 0) {
+            dicAllowed = false;
+            break;
+          }
+        }
+      }
+
+      if (!dicAllowed) {
+        //console.log(`DicRequireLoader: Module "${moduleId}" excluded [${this.filename}]`);//XXX
+        return DicRequireLoader.originalRequire.apply(this, arguments);
+      }
+
+      //const instance = DicRequireLoader.originalRequire.apply(this, arguments);
+
+      const opts = {
+        loader: self,
+        requireLoader: {
+          modulePath: relativeModulePath
+        }
+      };
+
+      self.dic.registerRequire(moduleId, requestedModulePath, opts);
+
       console.log(`DicRequireLoader: Module "${moduleId}" added to Dic [${this.filename}]`);//XXX
-      return inc;
+      return self.dic.get(moduleId);
     };
+  }
+
+  exportService(serviceDef) {
+    return {
+      type: 'require',
+      path: serviceDef.requireLoader.modulePath
+    }
   }
 
 };

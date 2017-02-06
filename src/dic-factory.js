@@ -1,10 +1,4 @@
-const GeneratorProxyTrap = require('./generator-proxy-trap');
-
 module.exports = class DicFactory {
-  static createGeneratorProxy(fn, params) {
-    return new Proxy({}, new GeneratorProxyTrap(fn, params));
-  }
-
   static createCallbackPromise(fn) {
     let resolve, reject;
     const ready = new Promise(function(res, rej) {
@@ -23,7 +17,7 @@ module.exports = class DicFactory {
     });
 
     emitter.once(resolveEvent, () => {
-      resolve();
+      resolve(emitter);
     });
 
     if (rejectEvent) {
