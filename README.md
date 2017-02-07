@@ -10,6 +10,8 @@ npm install matuszeman/bb-dic
 
 # Usage
 
+For ES5 compatible implementation use `require('bb-dic/es5')`.
+
 See `examples` folder for full usage examples.
 
 ## Sync usage
