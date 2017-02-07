@@ -5,10 +5,12 @@ A dependency injection container.
 # Installation
 
 ```
-npm install bb-dic
+npm install matuszeman/bb-dic
 ```
 
 # Usage
+
+See `examples` folder for full usage examples.
 
 ## Sync usage
 
