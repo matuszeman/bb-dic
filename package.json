@@ -1,6 +1,6 @@
 {
   "name": "bb-dic",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A dependency injection container",
   "main": "src/index.js",
   "scripts": {
@@ -14,6 +14,7 @@
     "acorn": "^4.0.4",
     "acorn-es7-plugin": "^1.1.5",
     "glob": "^7.1.1",
+    "is-generator": "^1.0.3",
     "joi": "^10.2.0",
     "lodash": "^4.14.2"
   },
