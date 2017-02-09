@@ -6,7 +6,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _ = require('lodash');
 
+/**
+ * Config loader - sets up Dic from the config (plain object)
+ */
+
 var DicConfigLoader = function () {
+  /**
+   * @param {Object} opts
+   * @param {string} opts.optionsSuffix What suffix to use for "options" config. See: {@link DicConfigLoader#loadConfig}
+   * @param {Dic} dic
+   */
   function DicConfigLoader(opts, dic) {
     _classCallCheck(this, DicConfigLoader);
 
@@ -16,20 +25,48 @@ var DicConfigLoader = function () {
     this.dic = dic;
   }
 
+  /**
+   * Set up Dic according the config
+   *
+   * @example
+   * {
+   *   options: {
+   *     service1: { } // {} is registered as "service1Opts" instance
+   *   },
+   *   aliases: {
+   *     service2: 'service1' // "service1" is aliased to "service2"
+   *   },
+   *   bindings: {
+   *     package1: { // bind container name
+   *       imports: {
+   *         serviceA: 'service1' // "service1" from main container is imported into "package1" container as "serviceA"
+   *       },
+   *       //options for bind container, same as for main container i.e. `options`, `aliases`, ...
+   *     }
+   *   }
+   * }
+   *
+   * @param {Object} config
+   * @param {Object} [config.options] Create plain object "option" instances
+   * @param {Object} [config.aliases] Create aliases
+   * @param {Object} [config.bindings] Set up bind Dic
+   */
+
+
   _createClass(DicConfigLoader, [{
     key: 'loadConfig',
-    value: function loadConfig(obj) {
+    value: function loadConfig(config) {
       var _this = this;
 
-      _.each(obj.options, function (opts, service) {
+      _.each(config.options, function (opts, service) {
         _this.dic.registerInstance(service + _this.options.optionsSuffix, opts);
       });
 
-      _.each(obj.aliases, function (alias, service) {
+      _.each(config.aliases, function (alias, service) {
         _this.dic.alias(alias, service);
       });
 
-      _.each(obj.bindings, function (binding, containerName) {
+      _.each(config.bindings, function (binding, containerName) {
         var child = _this.dic.getChild(containerName);
 
         var loader = new DicConfigLoader(_this.options, child);

@@ -91,6 +91,9 @@ dic.asyncInit().then(() => {
 <dt><a href="#DicClassLoader">DicClassLoader</a></dt>
 <dd><p>Class loader</p>
 </dd>
+<dt><a href="#DicConfigLoader">DicConfigLoader</a></dt>
+<dd><p>Config loader - sets up Dic from the config (plain object)</p>
+</dd>
 <dt><a href="#Dic">Dic</a></dt>
 <dd><p>Dependency injection container</p>
 <p>For more usage examples see: <a href="#Dic+registerInstance">registerInstance</a>, <a href="#Dic+registerClass">registerClass</a>, <a href="#Dic+registerFactory">registerFactory</a>,
@@ -147,6 +150,60 @@ const loader = new DicClassLoader({
 loader.loadPath('src/*.js');
 
 module.exports = dic;
+```
+<a name="DicConfigLoader"></a>
+
+## DicConfigLoader
+Config loader - sets up Dic from the config (plain object)
+
+**Kind**: global class  
+
+* [DicConfigLoader](#DicConfigLoader)
+    * [new DicConfigLoader(opts, dic)](#new_DicConfigLoader_new)
+    * [.loadConfig(config)](#DicConfigLoader+loadConfig)
+
+<a name="new_DicConfigLoader_new"></a>
+
+### new DicConfigLoader(opts, dic)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.optionsSuffix | <code>string</code> | What suffix to use for "options" config. See: [loadConfig](#DicConfigLoader+loadConfig) |
+| dic | <code>[Dic](#Dic)</code> |  |
+
+<a name="DicConfigLoader+loadConfig"></a>
+
+### dicConfigLoader.loadConfig(config)
+Set up Dic according the config
+
+**Kind**: instance method of <code>[DicConfigLoader](#DicConfigLoader)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| config | <code>Object</code> |  |
+| [config.options] | <code>Object</code> | Create plain object "option" instances |
+| [config.aliases] | <code>Object</code> | Create aliases |
+| [config.bindings] | <code>Object</code> | Set up bind Dic |
+
+**Example**  
+```js
+{
+  options: {
+    service1: { } // {} is registered as "service1Opts" instance
+  },
+  aliases: {
+    service2: 'service1' // "service1" is aliased to "service2"
+  },
+  bindings: {
+    package1: { // bind container name
+      imports: {
+        serviceA: 'service1' // "service1" from main container is imported into "package1" container as "serviceA"
+      },
+      //options for bind container, same as for main container i.e. `options`, `aliases`, ...
+    }
+  }
+}
 ```
 <a name="Dic"></a>
 
