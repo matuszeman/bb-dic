@@ -1,19 +1,25 @@
 const _ = require('lodash');
 const nodePath = require('path');
-const glob = require('glob');
+const globby = require('globby');
+const Dic = require('./dic');
 
 /**
  * Class loader
  */
 class DicClassLoader {
   /**
-   * @param {Object} opts
+   * @param {Object|Dic} opts Options or Dic
    * @param {string} opts.rootDir
    * @param {Dic} dic
    */
   constructor(opts, dic) {
+    if (opts instanceof Dic) {
+      dic = opts;
+      opts = {};
+    }
+
     this.options = _.defaults(opts, {
-      rootDir: './'
+      rootDir: process.cwd()
     });
     this.dic = dic;
   }
@@ -26,24 +32,23 @@ class DicClassLoader {
    * File name dictates what name the service will be registered as.
    * E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
    *
-   * @example // Registers all classes under `__dirname/src` folder.
+   * @example // Registers all classes under `CWD/src` folder.
    *
    * const {Dic, DicClassLoader} = require('bb-dic');
    * const dic = new Dic();
-   * const loader = new DicClassLoader({
-   *   rootDir: __dirname
-   * }, dic);
+   * const loader = new DicClassLoader(dic);
    * loader.loadPath('src/*.js');
    *
    * module.exports = dic;
    *
-   * @param {string} path glob expression {@link https://www.npmjs.com/package/glob}
+   * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
    */
   loadPath(path) {
-    const filePaths = nodePath.resolve(this.options.rootDir, path);
-    const ret = glob.sync(filePaths);
+    const ret = globby.sync(path, {
+      cwd: this.options.rootDir
+    });
     for (const p of ret) {
-      const mod = require(p);
+      const mod = require(this.options.rootDir + '/' + p);
       const name = _.camelCase(nodePath.basename(p, '.js'));
       this.dic.registerClass(name, mod);
     }
