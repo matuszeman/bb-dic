@@ -8,16 +8,11 @@ const Dic = require('./dic');
  */
 class DicClassLoader {
   /**
-   * @param {Object|Dic} opts Options or Dic
-   * @param {string} opts.rootDir
    * @param {Dic} dic
+   * @param {Object} opts
+   * @param {string} opts.rootDir Absolute path to root folder of source files. Default: `process.cwd()`
    */
-  constructor(opts, dic) {
-    if (opts instanceof Dic) {
-      dic = opts;
-      opts = {};
-    }
-
+  constructor(dic, opts = {}) {
     this.options = _.defaults(opts, {
       rootDir: process.cwd()
     });

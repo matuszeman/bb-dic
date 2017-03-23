@@ -116,11 +116,11 @@ Class loader
 
 ### new DicClassLoader(opts, dic)
 
-| Param | Type |
-| --- | --- |
-| opts | <code>Object</code> | 
-| opts.rootDir | <code>string</code> | 
-| dic | <code>[Dic](#Dic)</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> &#124; <code>[Dic](#Dic)</code> | Options or Dic |
+| opts.rootDir | <code>string</code> |  |
+| dic | <code>[Dic](#Dic)</code> |  |
 
 <a name="DicClassLoader+loadPath"></a>
 
@@ -136,17 +136,15 @@ E.g. `my-service.js` service would become registered as `myService` => file name
 
 | Param | Type | Description |
 | --- | --- | --- |
-| path | <code>string</code> | glob expression [https://www.npmjs.com/package/glob](https://www.npmjs.com/package/glob) |
+| path | <code>string</code> | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
 
 **Example**  
 ```js
-// Registers all classes under `__dirname/src` folder.
+// Registers all classes under `CWD/src` folder.
 
 const {Dic, DicClassLoader} = require('bb-dic');
 const dic = new Dic();
-const loader = new DicClassLoader({
-  rootDir: __dirname
-}, dic);
+const loader = new DicClassLoader(dic);
 loader.loadPath('src/*.js');
 
 module.exports = dic;

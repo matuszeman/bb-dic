@@ -6,7 +6,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _ = require('lodash');
 var nodePath = require('path');
-var glob = require('glob');
+var globby = require('globby');
+var Dic = require('./dic');
 
 /**
  * Class loader
@@ -14,15 +15,17 @@ var glob = require('glob');
 
 var DicClassLoader = function () {
   /**
-   * @param {Object} opts
-   * @param {string} opts.rootDir
    * @param {Dic} dic
+   * @param {Object} opts
+   * @param {string} opts.rootDir Absolute path to root folder of source files. Default: `process.cwd()`
    */
-  function DicClassLoader(opts, dic) {
+  function DicClassLoader(dic) {
+    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     _classCallCheck(this, DicClassLoader);
 
     this.options = _.defaults(opts, {
-      rootDir: './'
+      rootDir: process.cwd()
     });
     this.dic = dic;
   }
@@ -35,26 +38,25 @@ var DicClassLoader = function () {
    * File name dictates what name the service will be registered as.
    * E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
    *
-   * @example // Registers all classes under `__dirname/src` folder.
+   * @example // Registers all classes under `CWD/src` folder.
    *
    * const {Dic, DicClassLoader} = require('bb-dic');
    * const dic = new Dic();
-   * const loader = new DicClassLoader({
-   *   rootDir: __dirname
-   * }, dic);
+   * const loader = new DicClassLoader(dic);
    * loader.loadPath('src/*.js');
    *
    * module.exports = dic;
    *
-   * @param {string} path glob expression {@link https://www.npmjs.com/package/glob}
+   * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
    */
 
 
   _createClass(DicClassLoader, [{
     key: 'loadPath',
     value: function loadPath(path) {
-      var filePaths = nodePath.resolve(this.options.rootDir, path);
-      var ret = glob.sync(filePaths);
+      var ret = globby.sync(path, {
+        cwd: this.options.rootDir
+      });
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
@@ -63,7 +65,7 @@ var DicClassLoader = function () {
         for (var _iterator = ret[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var p = _step.value;
 
-          var mod = require(p);
+          var mod = require(this.options.rootDir + '/' + p);
           var name = _.camelCase(nodePath.basename(p, '.js'));
           this.dic.registerClass(name, mod);
         }
