@@ -31,9 +31,9 @@ const {Dic} = require('bb-dic');
 const dic = new Dic();
 
 // register all instances
-dic.registerInstance('myServiceOpts', { some: 'thing' });
-dic.registerClass('myService', MyService);
-dic.registerFactory('myApp', function(myService) {
+dic.instance('myServiceOpts', { some: 'thing' });
+dic.class('myService', MyService);
+dic.factory('myApp', function(myService) {
   return function() {
     // some application code
     myService.showOff();
@@ -58,17 +58,17 @@ class AsyncService {
   }
 
   showOff() {
-    console.log('Pefect, all works!');
+    console.log('Perfect, all works!');
   }
 }
-dic.registerClass('asyncService', AsyncService);
+dic.class('asyncService', AsyncService);
 
-dic.registerAsyncFactory('asyncMsg', async function() {
+dic.asyncFactory('asyncMsg', async function() {
   // some async calls needed to create an instance of this service
   return 'Async helps the server.';
 })
 
-dic.registerFactory('myApp', function(asyncService, asyncMsg) {
+dic.factory('myApp', function(asyncService, asyncMsg) {
   return function() {
     // some application code with all services ready
     myService.showOff();
@@ -76,9 +76,14 @@ dic.registerFactory('myApp', function(asyncService, asyncMsg) {
   }
 });
 
-// Initialize and instantiate all async services
-dic.asyncInit().then(() => {
-  const app = dic.get('myApp');
+// Instantiate all container's async services and runs myApp - "shouldNotRun" service is also created
+//dic.asyncInit().then(() => {
+//  const app = dic.get('myApp');
+//  app();
+//});
+
+// OR: Creates myApp service and instantiate all its direct dependencies - "shouldNotRun" service is skipped
+dic.getAsync('myApp').then(app => {
   app();
 });
 ```
@@ -96,8 +101,8 @@ dic.asyncInit().then(() => {
 </dd>
 <dt><a href="#Dic">Dic</a></dt>
 <dd><p>Dependency injection container</p>
-<p>For more usage examples see: <a href="#Dic+registerInstance">registerInstance</a>, <a href="#Dic+registerClass">registerClass</a>, <a href="#Dic+registerFactory">registerFactory</a>,
-<a href="#Dic+registerAsyncFactory">registerAsyncFactory</a>, <a href="#Dic+bindChild">bindChild</a>.</p>
+<p>For more usage examples see: <a href="Dic#registerInstance">Dic#registerInstance</a>, <a href="Dic#registerClass">Dic#registerClass</a>, <a href="Dic#registerFactory">Dic#registerFactory</a>,
+<a href="Dic#registerAsyncFactory">Dic#registerAsyncFactory</a>, <a href="#Dic+bindChild">bindChild</a>.</p>
 </dd>
 </dl>
 
@@ -109,18 +114,18 @@ Class loader
 **Kind**: global class  
 
 * [DicClassLoader](#DicClassLoader)
-    * [new DicClassLoader(opts, dic)](#new_DicClassLoader_new)
+    * [new DicClassLoader(dic, opts)](#new_DicClassLoader_new)
     * [.loadPath(path)](#DicClassLoader+loadPath)
 
 <a name="new_DicClassLoader_new"></a>
 
-### new DicClassLoader(opts, dic)
+### new DicClassLoader(dic, opts)
 
 | Param | Type | Description |
 | --- | --- | --- |
-| opts | <code>Object</code> &#124; <code>[Dic](#Dic)</code> | Options or Dic |
-| opts.rootDir | <code>string</code> |  |
 | dic | <code>[Dic](#Dic)</code> |  |
+| opts | <code>Object</code> |  |
+| opts.rootDir | <code>string</code> | Absolute path to root folder of source files. Default: `process.cwd()` |
 
 <a name="DicClassLoader+loadPath"></a>
 
@@ -157,18 +162,18 @@ Config loader - sets up Dic from the config (plain object)
 **Kind**: global class  
 
 * [DicConfigLoader](#DicConfigLoader)
-    * [new DicConfigLoader(opts, dic)](#new_DicConfigLoader_new)
+    * [new DicConfigLoader(dic, opts)](#new_DicConfigLoader_new)
     * [.loadConfig(config)](#DicConfigLoader+loadConfig)
 
 <a name="new_DicConfigLoader_new"></a>
 
-### new DicConfigLoader(opts, dic)
+### new DicConfigLoader(dic, opts)
 
 | Param | Type | Description |
 | --- | --- | --- |
+| dic | <code>[Dic](#Dic)</code> |  |
 | opts | <code>Object</code> |  |
 | opts.optionsSuffix | <code>string</code> | What suffix to use for "options" config. See: [loadConfig](#DicConfigLoader+loadConfig) |
-| dic | <code>[Dic](#Dic)</code> |  |
 
 <a name="DicConfigLoader+loadConfig"></a>
 
@@ -208,23 +213,25 @@ Set up Dic according the config
 ## Dic
 Dependency injection container
 
-For more usage examples see: [registerInstance](#Dic+registerInstance), [registerClass](#Dic+registerClass), [registerFactory](#Dic+registerFactory),
-[registerAsyncFactory](#Dic+registerAsyncFactory), [bindChild](#Dic+bindChild).
+For more usage examples see: [Dic#registerInstance](Dic#registerInstance), [Dic#registerClass](Dic#registerClass), [Dic#registerFactory](Dic#registerFactory),
+[Dic#registerAsyncFactory](Dic#registerAsyncFactory), [bindChild](#Dic+bindChild).
 
 **Kind**: global class  
 
 * [Dic](#Dic)
     * [new Dic(options)](#new_Dic_new)
-    * [.registerAsyncFactory(name, factory)](#Dic+registerAsyncFactory)
-    * [.registerFactory(name, factory)](#Dic+registerFactory)
-    * [.registerInstance(name, instance)](#Dic+registerInstance)
-    * [.registerClass(name, classDef, opts)](#Dic+registerClass)
+    * [.asyncFactory(name, factory)](#Dic+asyncFactory)
+    * [.factory(name, factory)](#Dic+factory)
+    * [.instance(name, instance)](#Dic+instance)
+    * [.class(name, classDef, opts)](#Dic+class)
     * [.asyncInit()](#Dic+asyncInit)
     * [.has(name)](#Dic+has) ⇒ <code>boolean</code>
     * [.get(name)](#Dic+get) ⇒ <code>\*</code>
     * [.getAsync(name)](#Dic+getAsync) ⇒ <code>\*</code>
     * [.alias(name, alias)](#Dic+alias)
     * [.bindChild(dic, opts)](#Dic+bindChild)
+    * [.createInstance(def, opts)](#Dic+createInstance) ⇒ <code>\*</code>
+    * [.createInstanceAsync(def, opts)](#Dic+createInstanceAsync) ⇒ <code>\*</code>
 
 <a name="new_Dic_new"></a>
 
@@ -252,9 +259,9 @@ dic.registerInstance('myServiceOpts', { some: 'thing' });
 
 const myService = dic.get('myService');
 ```
-<a name="Dic+registerAsyncFactory"></a>
+<a name="Dic+asyncFactory"></a>
 
-### dic.registerAsyncFactory(name, factory)
+### dic.asyncFactory(name, factory)
 Registers async factory.
 
 Factory function is called asynchronously and should return an instance of the service.
@@ -273,9 +280,9 @@ dic.registerAsyncFactory('mongoConnection', async function(mongoConnectionOpts) 
   return await MongoClient.connect(mongoConnectionOpts.url);
 });
 ```
-<a name="Dic+registerFactory"></a>
+<a name="Dic+factory"></a>
 
-### dic.registerFactory(name, factory)
+### dic.factory(name, factory)
 Register a factory.
 
 The factory function should return an instance of the service.
@@ -294,9 +301,9 @@ dic.registerFactory('myService', function(myServiceOpts) {
   return new MyService(myServiceOpts);
 });
 ```
-<a name="Dic+registerInstance"></a>
+<a name="Dic+instance"></a>
 
-### dic.registerInstance(name, instance)
+### dic.instance(name, instance)
 Register an instance
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
@@ -312,9 +319,9 @@ dic.registerInstance('myScalarValue', 'string');
 dic.registerInstance('myObject', { some: 'thing' });
 dic.registerInstance('myFunction', function(msg) { console.log(msg) });
 ```
-<a name="Dic+registerClass"></a>
+<a name="Dic+class"></a>
 
-### dic.registerClass(name, classDef, opts)
+### dic.class(name, classDef, opts)
 Register a class
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
@@ -375,8 +382,8 @@ Runs async initialization of container services.
 
 This includes instances registered using:
 
- - [registerAsyncFactory](#Dic+registerAsyncFactory)
- - [registerClass](#Dic+registerClass) a class having `async asyncInit()` method or with async init option set
+ - [Dic#registerAsyncFactory](Dic#registerAsyncFactory)
+ - [Dic#registerClass](Dic#registerClass) a class having `async asyncInit()` method or with async init option set
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
 **Example**  
@@ -518,3 +525,27 @@ dic.bindChild(packageDic, {
 // get a child service instance directly
 const logger = dic.get('myPackage_logger');
 ```
+<a name="Dic+createInstance"></a>
+
+### dic.createInstance(def, opts) ⇒ <code>\*</code>
+Create an instance injecting it's dependencies from the container
+
+**Kind**: instance method of <code>[Dic](#Dic)</code>  
+
+| Param | Type |
+| --- | --- |
+| def | <code>Object</code> | 
+| opts | <code>Object</code> | 
+
+<a name="Dic+createInstanceAsync"></a>
+
+### dic.createInstanceAsync(def, opts) ⇒ <code>\*</code>
+Create an instance injecting it's dependencies from the container
+
+**Kind**: instance method of <code>[Dic](#Dic)</code>  
+
+| Param | Type |
+| --- | --- |
+| def | <code>Object</code> | 
+| opts | <code>Object</code> | 
+

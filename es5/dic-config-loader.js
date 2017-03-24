@@ -12,11 +12,13 @@ var _ = require('lodash');
 
 var DicConfigLoader = function () {
   /**
+   * @param {Dic} dic
    * @param {Object} opts
    * @param {string} opts.optionsSuffix What suffix to use for "options" config. See: {@link DicConfigLoader#loadConfig}
-   * @param {Dic} dic
    */
-  function DicConfigLoader(opts, dic) {
+  function DicConfigLoader(dic) {
+    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     _classCallCheck(this, DicConfigLoader);
 
     this.options = _.defaults(opts, {

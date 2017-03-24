@@ -17,12 +17,12 @@ class AsyncService extends AbstractService {
    * >>> 1. For classes, one way of defining async initialization is to define asyncInit() function.
    */
   async asyncInit() {
-    // some async await calls to get this instance intialized (or promise can be used too!)
+    // some async await calls to get this instance initialized (or promise can be used too!)
     this.asyncMsg = 'Perfect, async initialized!';
   }
 
 }
-dic.registerClass('asyncService', AsyncService);
+dic.class('asyncService', AsyncService);
 
 class AsyncPromiseService extends AbstractService {
   /**
@@ -30,14 +30,16 @@ class AsyncPromiseService extends AbstractService {
    */
   asyncInit() {
     return new Promise((resolve, reject) => {
+      console.log('AsyncPromiseService: init - waiting 2 secs');//XXX
       setTimeout(() => {
+        console.log('AsyncPromiseService: init done');//XXX
         this.asyncMsg = 'Perfect, async initialized!';
         resolve();
       }, 2000);
     });
   }
 }
-dic.registerClass('asyncPromiseService', AsyncPromiseService);
+dic.class('asyncPromiseService', AsyncPromiseService);
 
 class CustomAsyncInitService extends AbstractService {
   /**
@@ -51,11 +53,11 @@ class CustomAsyncInitService extends AbstractService {
 /**
  * >>> 4. ... but this must be specified when you register the class with the container.
  */
-dic.registerClass('customAsyncInitService', CustomAsyncInitService, {
+dic.class('customAsyncInitService', CustomAsyncInitService, {
   asyncInit: 'customAsyncInit'
 });
 
-dic.registerAsyncFactory('asyncFactory', async function() {
+dic.asyncFactory('asyncFactory', function() {
   return {
     showOff: () => {
       console.log('Async factory works too!')
@@ -63,7 +65,11 @@ dic.registerAsyncFactory('asyncFactory', async function() {
   }
 });
 
-dic.registerFactory('myApp', function(asyncService, asyncPromiseService, customAsyncInitService, asyncFactory) {
+dic.asyncFactory('shouldNotRun', function() {
+  console.log('This should only run when dic.asyncInit() is used.');//XXX
+});
+
+dic.factory('myApp', function(asyncService, asyncPromiseService, customAsyncInitService, asyncFactory) {
   return function() {
     // some application code
     asyncService.showOff();
@@ -73,8 +79,14 @@ dic.registerFactory('myApp', function(asyncService, asyncPromiseService, customA
   }
 });
 
-// use it
-dic.asyncInit().then(() => {
-  const app = dic.get('myApp');
+// instantiate all async services withint the container and runs myApp - "shouldNotRun" service is also created
+//dic.asyncInit().then(() => {
+//  const app = dic.get('myApp');
+//  app();
+//});
+
+// Creates myApp service and instantiate all its direct dependencies - "shouldNotRun" service is skipped
+dic.getAsync('myApp').then(app => {
   app();
 });
+

@@ -81,6 +81,8 @@ var Dic = function () {
      * Registers async factory.
      *
      * Factory function is called asynchronously and should return an instance of the service.
+     *
+     * @alias Dic#asyncFactory
       * @example
      * dic.registerInstance('mongoConnectionOpts', { url: 'mongodb://localhost:27017/mydb' });
      * dic.registerAsyncFactory('mongoConnection', async function(mongoConnectionOpts) {
@@ -104,14 +106,21 @@ var Dic = function () {
 
       this.register(name, _.defaults({
         type: 'asyncFactory',
-        factory: factory
+        asyncFactory: factory
       }, opts));
+    }
+  }, {
+    key: 'asyncFactory',
+    value: function asyncFactory() {
+      return this.registerAsyncFactory.apply(this, arguments);
     }
 
     /**
      * Register a factory.
      *
      * The factory function should return an instance of the service.
+     *
+     * @alias Dic#factory
      *
      * @example
      * dic.registerInstance('myServiceOpts', { some: 'thing' })
@@ -125,23 +134,25 @@ var Dic = function () {
 
   }, {
     key: 'registerFactory',
-    value: function registerFactory(name, factory, opts) {
-      opts = opts || {};
+    value: function registerFactory(name, factory) {
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       this.log('Adding factory "' + name + '" Options: ', opts); //XXX
 
-      if (!opts.params) {
-        var ret = this.parser.parseFunction(factory);
-        opts.params = ret.params;
-      }
-
       this.register(name, _.defaults({
-        type: 'factory',
         factory: factory
       }, opts));
+    }
+  }, {
+    key: 'factory',
+    value: function factory() {
+      return this.registerFactory.apply(this, arguments);
     }
 
     /**
      * Register an instance
+     *
+     * @alias Dic#instance
      *
      * @example
      *
@@ -155,18 +166,25 @@ var Dic = function () {
 
   }, {
     key: 'registerInstance',
-    value: function registerInstance(name, ins, opts) {
-      opts = opts || {};
+    value: function registerInstance(name, ins) {
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       this.log('Adding instance "' + name + '" Options: ', opts); //XXX
 
       this.register(name, _.defaults({
-        type: 'instance',
         instance: ins
       }, opts));
+    }
+  }, {
+    key: 'instance',
+    value: function instance() {
+      return this.registerInstance.apply(this, arguments);
     }
 
     /**
      * Register a class
+     *
+     * @alias Dic#class
      *
      * @example // Class instance registration with dependency injection
      *
@@ -212,29 +230,19 @@ var Dic = function () {
 
   }, {
     key: 'registerClass',
-    value: function registerClass(name, classDef, opts) {
-      opts = opts || {};
+    value: function registerClass(name, classDef) {
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       this.log('Adding class "' + name + '" Options: ', opts); //XXX
 
-      if (!opts.params) {
-        var ret = this.parser.parseClass(classDef);
-        if (ret.factory.type !== 'ClassConstructor') {
-          this.throwError('Could not find a constructor def');
-        }
-        opts.params = ret.factory.params;
-      }
-
-      if (_.isUndefined(opts.asyncInit)) {
-        var _ret = this.parser.parseClass(classDef);
-        if (_ret.init) {
-          opts.asyncInit = _ret.init.name;
-        }
-      }
-
       this.register(name, _.defaults({
-        type: 'class',
         class: classDef
       }, opts));
+    }
+  }, {
+    key: 'class',
+    value: function _class() {
+      return this.registerClass.apply(this, arguments);
     }
   }, {
     key: 'register',
@@ -245,7 +253,7 @@ var Dic = function () {
         this.throwError('Service "' + name + '" already registered');
       }
 
-      ret.container.instances[ret.name] = def;
+      ret.container.instances[ret.name] = this.validateDef(def);
     }
 
     /**
@@ -269,7 +277,7 @@ var Dic = function () {
     key: 'asyncInit',
     value: function () {
       var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-        var name;
+        var name, def;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -286,23 +294,32 @@ var Dic = function () {
 
               case 4:
                 if ((_context.t1 = _context.t0()).done) {
-                  _context.next = 10;
+                  _context.next = 12;
                   break;
                 }
 
                 name = _context.t1.value;
-                _context.next = 8;
-                return this.getAsync(name);
+                def = this.instances[name];
 
-              case 8:
+                if (!(def.type === 'asyncFactory' || def.asyncInit)) {
+                  _context.next = 10;
+                  break;
+                }
+
+                _context.next = 10;
+                return this.getAsync(name, {
+                  stack: []
+                });
+
+              case 10:
                 _context.next = 4;
                 break;
 
-              case 10:
+              case 12:
 
                 this.log('asyncInit finished.'); //XXX
 
-              case 11:
+              case 13:
               case 'end':
                 return _context.stop();
             }
@@ -392,8 +409,9 @@ var Dic = function () {
     }
   }, {
     key: 'throwError',
-    value: function throwError(msg) {
-      throw new Error(this.getDicInstanceName() + ': ' + msg);
+    value: function throwError(msg, stack) {
+      var stackStr = stack.join(' > ');
+      throw new Error(this.getDicInstanceName() + ': ' + msg + ' [' + stackStr + ']');
     }
 
     /**
@@ -413,21 +431,22 @@ var Dic = function () {
     value: function get(name) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+      opts = this._createOpts(name, opts);
       var def = this.instances[name];
       if (!def) {
         var loc = this.findContainer(name);
         if (!loc.def) {
-          this.throwError('Instance "' + name + '" not defined');
+          this.throwError('Instance "' + name + '" not defined', opts.stack);
         }
         return loc.container.get(loc.name);
       }
 
-      if (def.type === 'asyncFactory' && !def.initialized) {
+      if (def.type === 'asyncFactory' && !def.asyncInitialized) {
         this.throwError('Async factory for ' + name + ' must be run first. Run dic.asyncInit()');
       }
 
-      if (!opts.ignoreAsync && def.asyncInit && !def.initialized) {
-        this.throwError('Instance "' + name + '" is not initialized yet');
+      if (!opts.ignoreAsync && def.asyncInit && !def.asyncInitialized) {
+        this.throwError('Instance "' + name + '" is not async initialized yet');
       }
 
       if (def.instance) {
@@ -439,7 +458,7 @@ var Dic = function () {
       //test for possible init method but without init enabled
       if (this.hasAsyncInit(instance)) {
         if (_.isUndefined(def.asyncInit)) {
-          this.throwError(name + ' has got ' + name + '.asyncInit() method. Did you forget to mark this instance to be initialized?');
+          this.throwError(name + ' has got ' + name + '.asyncInit() method. Did you forget to mark this instance to be async initialized?');
         } else if (!def.asyncInit) {
           console.warn(name + ' has got ' + name + '.asyncInit() method but auto init is disabled. Make sure you init the service manually yourself.');
         }
@@ -471,70 +490,47 @@ var Dic = function () {
     value: function () {
       var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(name) {
         var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        var def, loc, services, ins, instance, initMethod;
+        var def, loc, instance, initMethod;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
+                opts = this._createOpts(name, opts);
                 def = this.instances[name];
 
                 if (def) {
-                  _context2.next = 7;
+                  _context2.next = 8;
                   break;
                 }
 
                 loc = this.findContainer(name);
 
                 if (!loc.def) {
-                  this.throwError('Instance "' + name + '" not defined');
+                  this.throwError('Instance "' + name + '" not defined', opts.stack);
                 }
-                _context2.next = 6;
-                return loc.container.getAsync(loc.name);
-
-              case 6:
-                return _context2.abrupt('return', _context2.sent);
+                _context2.next = 7;
+                return loc.container.getAsync(loc.name, opts);
 
               case 7:
+                return _context2.abrupt('return', _context2.sent);
+
+              case 8:
                 if (!def.instance) {
-                  _context2.next = 9;
+                  _context2.next = 10;
                   break;
                 }
 
                 return _context2.abrupt('return', def.instance);
 
-              case 9:
-                if (!(def.type === 'asyncFactory')) {
-                  _context2.next = 18;
-                  break;
-                }
+              case 10:
+                _context2.next = 12;
+                return this.createInstanceAsync(def, opts);
 
-                this.log('async ' + name + ' factory'); //XXX
-
-                //make sure all services are also async initialized if needed
-                //for (const param of def.params) {
-                //  await this.getAsync(param);
-                //}
-
-                _context2.next = 13;
-                return this.getServicesAsync(def.params);
-
-              case 13:
-                services = _context2.sent;
-                ins = def.factory.apply(def, _toConsumableArray(services));
-
-                def.instance = ins;
-                def.initialized = true;
-                return _context2.abrupt('return', ins);
-
-              case 18:
-                _context2.next = 20;
-                return this.createInstanceAsync(def);
-
-              case 20:
+              case 12:
                 instance = _context2.sent;
 
                 if (!def.asyncInit) {
-                  _context2.next = 28;
+                  _context2.next = 19;
                   break;
                 }
 
@@ -550,18 +546,16 @@ var Dic = function () {
                 if (_.isString(def.asyncInit)) {
                   initMethod = def.asyncInit;
                 }
-                _context2.next = 27;
+                _context2.next = 19;
                 return instance[initMethod]();
 
-              case 27:
-                def.initialized = true;
-
-              case 28:
+              case 19:
 
                 def.instance = instance;
+                def.asyncInitialized = true;
                 return _context2.abrupt('return', instance);
 
-              case 30:
+              case 22:
               case 'end':
                 return _context2.stop();
             }
@@ -569,7 +563,7 @@ var Dic = function () {
         }, _callee2, this);
       }));
 
-      function getAsync(_x3) {
+      function getAsync(_x6) {
         return _ref2.apply(this, arguments);
       }
 
@@ -689,63 +683,108 @@ var Dic = function () {
 
       return this.children[name];
     }
+
+    /**
+     * Create an instance injecting it's dependencies from the container
+     *
+     * @param {Object} def
+     * @param {Object} opts
+     * @returns {*}
+     */
+
   }, {
     key: 'createInstance',
     value: function createInstance(def, opts) {
+      var _def;
+
+      def = this.validateDef(def);
+
       switch (def.type) {
+        case 'asyncFactory':
+          this.throwError('Use dic.createInstanceAsync() instead');
+          break;
         case 'factory':
-          return def.factory.apply(def, _toConsumableArray(this.getServices(def.params, opts)));
+          return (_def = def).factory.apply(_def, _toConsumableArray(this.getServices(def.params, def.inject, opts)));
           break;
         case 'class':
-          return new (Function.prototype.bind.apply(def.class, [null].concat(_toConsumableArray(this.getServices(def.params, opts)))))();
+          return new (Function.prototype.bind.apply(def.class, [null].concat(_toConsumableArray(this.getServices(def.params, def.inject, opts)))))();
           break;
         default:
           this.throwError('Unknown instance def type: ' + def.type);
       }
     }
+
+    /**
+     * Create an instance injecting it's dependencies from the container
+     *
+     * @param {Object} def
+     * @param {Object} opts
+     * @returns {*}
+     */
+
   }, {
     key: 'createInstanceAsync',
     value: function () {
       var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(def, opts) {
+        var _def2, _def3;
+
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
+                def = this.validateDef(def);
+
                 _context3.t0 = def.type;
-                _context3.next = _context3.t0 === 'factory' ? 3 : _context3.t0 === 'class' ? 12 : 24;
+                _context3.next = _context3.t0 === 'asyncFactory' ? 4 : _context3.t0 === 'factory' ? 15 : _context3.t0 === 'class' ? 24 : 36;
                 break;
 
-              case 3:
-                _context3.t1 = def.factory;
-                _context3.t2 = def;
+              case 4:
+                _context3.t1 = (_def2 = def).asyncFactory;
+                _context3.t2 = _def2;
                 _context3.t3 = _toConsumableArray;
-                _context3.next = 8;
-                return this.getServicesAsync(def.params, opts);
+                _context3.next = 9;
+                return this.getServicesAsync(def.params, def.inject, opts);
 
-              case 8:
+              case 9:
                 _context3.t4 = _context3.sent;
                 _context3.t5 = (0, _context3.t3)(_context3.t4);
-                return _context3.abrupt('return', _context3.t1.apply.call(_context3.t1, _context3.t2, _context3.t5));
+                _context3.next = 13;
+                return _context3.t1.apply.call(_context3.t1, _context3.t2, _context3.t5);
 
-              case 12:
-                _context3.t6 = Function.prototype.bind;
-                _context3.t7 = def.class;
-                _context3.t8 = [null];
-                _context3.t9 = _toConsumableArray;
-                _context3.next = 18;
-                return this.getServicesAsync(def.params, opts);
+              case 13:
+                return _context3.abrupt('return', _context3.sent);
 
-              case 18:
-                _context3.t10 = _context3.sent;
-                _context3.t11 = (0, _context3.t9)(_context3.t10);
-                _context3.t12 = _context3.t8.concat.call(_context3.t8, _context3.t11);
-                _context3.t13 = _context3.t6.apply.call(_context3.t6, _context3.t7, _context3.t12);
-                return _context3.abrupt('return', new _context3.t13());
+              case 15:
+                _context3.t6 = (_def3 = def).factory;
+                _context3.t7 = _def3;
+                _context3.t8 = _toConsumableArray;
+                _context3.next = 20;
+                return this.getServicesAsync(def.params, def.inject, opts);
+
+              case 20:
+                _context3.t9 = _context3.sent;
+                _context3.t10 = (0, _context3.t8)(_context3.t9);
+                return _context3.abrupt('return', _context3.t6.apply.call(_context3.t6, _context3.t7, _context3.t10));
 
               case 24:
+                _context3.t11 = Function.prototype.bind;
+                _context3.t12 = def.class;
+                _context3.t13 = [null];
+                _context3.t14 = _toConsumableArray;
+                _context3.next = 30;
+                return this.getServicesAsync(def.params, def.inject, opts);
+
+              case 30:
+                _context3.t15 = _context3.sent;
+                _context3.t16 = (0, _context3.t14)(_context3.t15);
+                _context3.t17 = _context3.t13.concat.call(_context3.t13, _context3.t16);
+                _context3.t18 = _context3.t11.apply.call(_context3.t11, _context3.t12, _context3.t17);
+                return _context3.abrupt('return', new _context3.t18());
+
+              case 36:
                 this.throwError('Unknown instance def type: ' + def.type);
 
-              case 25:
+              case 37:
               case 'end':
                 return _context3.stop();
             }
@@ -753,37 +792,121 @@ var Dic = function () {
         }, _callee3, this);
       }));
 
-      function createInstanceAsync(_x6, _x7) {
+      function createInstanceAsync(_x9, _x10) {
         return _ref3.apply(this, arguments);
       }
 
       return createInstanceAsync;
     }()
   }, {
+    key: 'validateDef',
+    value: function validateDef(def) {
+      def = Joi.attempt(def, Joi.object().keys({
+        type: Joi.string(),
+        instance: Joi.any(),
+        class: Joi.func(),
+        factory: Joi.func(),
+        asyncInit: Joi.any(),
+        params: Joi.array(),
+        asyncFactory: Joi.func(),
+        inject: Joi.object().default({})
+      }));
+
+      if (!def.type) {
+        var _arr = ['class', 'factory', 'asyncFactory', 'instance'];
+
+        for (var _i = 0; _i < _arr.length; _i++) {
+          var type = _arr[_i];
+          if (def[type]) {
+            def.type = type;
+          }
+        }
+      }
+
+      if (def.type === 'class') {
+        if (_.isUndefined(def.asyncInit)) {
+          var ret = this.parser.parseClass(def.class);
+          if (ret.init) {
+            def.asyncInit = ret.init.name;
+          }
+        }
+      }
+
+      if (!def.params) {
+        switch (def.type) {
+          case 'instance':
+            break;
+          case 'asyncFactory':
+          case 'factory':
+            var ret1 = this.parser.parseFunction(def.factory || def.asyncFactory);
+            def.params = ret1.params;
+            break;
+          case 'class':
+            var ret2 = this.parser.parseClass(def.class);
+            if (ret2.factory.type !== 'ClassConstructor') {
+              this.throwError('Could not find a constructor def');
+            }
+            def.params = ret2.factory.params;
+            break;
+          default:
+            this.throwError('Unknown instance def type: ' + def.type);
+        }
+      }
+
+      return def;
+    }
+  }, {
     key: 'getServices',
-    value: function getServices(serviceNames, opts) {
+    value: function getServices(serviceNames) {
       var _this = this;
+
+      var inject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
       if (!_.isArray(serviceNames)) {
         return [];
       }
 
-      return serviceNames.map(function (serviceName) {
-        return _this.get(serviceName, opts);
+      return serviceNames.map(function (param) {
+        if (inject[param]) {
+          return inject[param];
+        }
+        return _this.get(param, opts);
       });
     }
   }, {
     key: 'getServicesAsync',
-    value: function getServicesAsync(serviceNames, opts) {
+    value: function getServicesAsync(serviceNames) {
       var _this2 = this;
+
+      var inject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
       if (!_.isArray(serviceNames)) {
         return [];
       }
 
-      return Promise.all(serviceNames.map(function (serviceName) {
-        return _this2.getAsync(serviceName, opts);
-      }));
+      var servicesPromises = serviceNames.map(function (param) {
+        if (inject[param]) {
+          return inject[param];
+        }
+        return _this2.getAsync(param, opts);
+      });
+
+      return Promise.all(servicesPromises);
+    }
+  }, {
+    key: '_createOpts',
+    value: function _createOpts(service, opts) {
+      var instanceOpts = _.cloneDeep(opts);
+      var stack = _.get(instanceOpts, 'stack');
+      if (!stack) {
+        stack = [service ? service : '$this'];
+      } else {
+        stack.push(service);
+      }
+      instanceOpts.stack = stack;
+      return instanceOpts;
     }
   }]);
 

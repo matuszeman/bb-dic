@@ -15,14 +15,16 @@ class MyService {
 
 // register all instances
 dic.instance('myServiceOpts', { some: 'thing' });
-dic.class('myService', MyService);
-dic.factory('myApp', function(myService) {
-  return function() {
-    // some application code
-    myService.showOff();
+
+const ins = dic.createInstanceAsync({
+  class: MyService,
+  inject: {
+    myServiceOpts: {
+      other: 123
+    }
   }
+}).then(ins => {
+  console.log(ins);//XXX
 });
 
-// use it
-const app = dic.get('myApp');
-app();
+console.log(ins);//XXX

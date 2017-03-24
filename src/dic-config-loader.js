@@ -5,11 +5,11 @@ const _ = require('lodash');
  */
 class DicConfigLoader {
   /**
+   * @param {Dic} dic
    * @param {Object} opts
    * @param {string} opts.optionsSuffix What suffix to use for "options" config. See: {@link DicConfigLoader#loadConfig}
-   * @param {Dic} dic
    */
-  constructor(opts, dic) {
+  constructor(dic, opts = {}) {
     this.options = _.defaults(opts, {
       optionsSuffix: 'Opts'
     });

@@ -31,9 +31,9 @@ const {Dic} = require('bb-dic');
 const dic = new Dic();
 
 // register all instances
-dic.registerInstance('myServiceOpts', { some: 'thing' });
-dic.registerClass('myService', MyService);
-dic.registerFactory('myApp', function(myService) {
+dic.instance('myServiceOpts', { some: 'thing' });
+dic.class('myService', MyService);
+dic.factory('myApp', function(myService) {
   return function() {
     // some application code
     myService.showOff();
@@ -58,17 +58,17 @@ class AsyncService {
   }
 
   showOff() {
-    console.log('Pefect, all works!');
+    console.log('Perfect, all works!');
   }
 }
-dic.registerClass('asyncService', AsyncService);
+dic.class('asyncService', AsyncService);
 
-dic.registerAsyncFactory('asyncMsg', async function() {
+dic.asyncFactory('asyncMsg', async function() {
   // some async calls needed to create an instance of this service
   return 'Async helps the server.';
 })
 
-dic.registerFactory('myApp', function(asyncService, asyncMsg) {
+dic.factory('myApp', function(asyncService, asyncMsg) {
   return function() {
     // some application code with all services ready
     myService.showOff();
@@ -76,9 +76,14 @@ dic.registerFactory('myApp', function(asyncService, asyncMsg) {
   }
 });
 
-// Initialize and instantiate all async services
-dic.asyncInit().then(() => {
-  const app = dic.get('myApp');
+// Instantiate all container's async services and runs myApp - "shouldNotRun" service is also created
+//dic.asyncInit().then(() => {
+//  const app = dic.get('myApp');
+//  app();
+//});
+
+// OR: Creates myApp service and instantiate all its direct dependencies - "shouldNotRun" service is skipped
+dic.getAsync('myApp').then(app => {
   app();
 });
 ```

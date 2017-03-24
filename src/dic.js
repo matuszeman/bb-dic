@@ -63,6 +63,8 @@ class Dic {
    * Registers async factory.
    *
    * Factory function is called asynchronously and should return an instance of the service.
+   *
+   * @alias Dic#asyncFactory
 
    * @example
    * dic.registerInstance('mongoConnectionOpts', { url: 'mongodb://localhost:27017/mydb' });
@@ -84,14 +86,20 @@ class Dic {
 
     this.register(name ,_.defaults({
       type: 'asyncFactory',
-      factory: factory
+      asyncFactory: factory
     }, opts));
+  }
+
+  asyncFactory() {
+    return this.registerAsyncFactory(...arguments);
   }
 
   /**
    * Register a factory.
    *
    * The factory function should return an instance of the service.
+   *
+   * @alias Dic#factory
    *
    * @example
    * dic.registerInstance('myServiceOpts', { some: 'thing' })
@@ -102,23 +110,22 @@ class Dic {
    * @param name
    * @param factory
    */
-  registerFactory(name, factory, opts) {
-    opts = opts || {};
+  registerFactory(name, factory, opts = {}) {
     this.log(`Adding factory "${name}" Options: `, opts);//XXX
 
-    if (!opts.params) {
-      const ret = this.parser.parseFunction(factory);
-      opts.params = ret.params;
-    }
-
-    this.register(name ,_.defaults({
-      type: 'factory',
+    this.register(name, _.defaults({
       factory: factory
     }, opts));
   }
 
+  factory() {
+    return this.registerFactory(...arguments);
+  }
+
   /**
    * Register an instance
+   *
+   * @alias Dic#instance
    *
    * @example
    *
@@ -129,18 +136,22 @@ class Dic {
    * @param name
    * @param instance
    */
-  registerInstance(name, ins, opts) {
-    opts = opts || {};
+  registerInstance(name, ins, opts = {}) {
     this.log(`Adding instance "${name}" Options: `, opts);//XXX
 
     this.register(name, _.defaults({
-      type: 'instance',
       instance: ins
     }, opts));
   }
 
+  instance() {
+    return this.registerInstance(...arguments);
+  }
+
   /**
    * Register a class
+   *
+   * @alias Dic#class
    *
    * @example // Class instance registration with dependency injection
    *
@@ -183,29 +194,16 @@ class Dic {
    * @param {Object} opts
    * @param {boolean|string} opts.asyncInit If true default asyncInit() function is used. If string, provided function is called on {@link Dic#asyncInit}.
    */
-  registerClass(name, classDef, opts) {
-    opts = opts || {};
+  registerClass(name, classDef, opts = {}) {
     this.log(`Adding class "${name}" Options: `, opts);//XXX
 
-    if (!opts.params) {
-      const ret = this.parser.parseClass(classDef);
-      if (ret.factory.type !== 'ClassConstructor') {
-        this.throwError('Could not find a constructor def');
-      }
-      opts.params = ret.factory.params;
-    }
-
-    if (_.isUndefined(opts.asyncInit)) {
-      const ret = this.parser.parseClass(classDef);
-      if (ret.init) {
-        opts.asyncInit = ret.init.name;
-      }
-    }
-
     this.register(name, _.defaults({
-      type: 'class',
       class: classDef
     }, opts));
+  }
+
+  class() {
+    return this.registerClass(...arguments);
   }
 
   register(name, def) {
@@ -215,7 +213,7 @@ class Dic {
       this.throwError(`Service "${name}" already registered`);
     }
 
-    ret.container.instances[ret.name] = def;
+    ret.container.instances[ret.name] = this.validateDef(def);
   }
 
   /**
@@ -242,7 +240,12 @@ class Dic {
     }));
 
     for (const name in this.instances) {
-      await this.getAsync(name);
+      const def = this.instances[name];
+      if (def.type === 'asyncFactory' || def.asyncInit) {
+        await this.getAsync(name, {
+          stack: []
+        });
+      }
     }
 
     this.log(`asyncInit finished.`);//XXX
@@ -313,8 +316,9 @@ class Dic {
     return 'Dic';
   }
 
-  throwError(msg) {
-    throw new Error(`${this.getDicInstanceName()}: ${msg}`);
+  throwError(msg, stack) {
+    const stackStr = stack.join(' > ');
+    throw new Error(`${this.getDicInstanceName()}: ${msg} [${stackStr}]`);
   }
 
   /**
@@ -329,21 +333,22 @@ class Dic {
    * @returns {*}
    */
   get(name, opts = {}) {
+    opts = this._createOpts(name, opts);
     const def = this.instances[name];
     if (!def) {
       const loc = this.findContainer(name);
       if (!loc.def) {
-        this.throwError(`Instance "${name}" not defined`);
+        this.throwError(`Instance "${name}" not defined`, opts.stack);
       }
       return loc.container.get(loc.name);
     }
 
-    if (def.type === 'asyncFactory' && !def.initialized) {
+    if (def.type === 'asyncFactory' && !def.asyncInitialized) {
       this.throwError(`Async factory for ${name} must be run first. Run dic.asyncInit()`);
     }
 
-    if (!opts.ignoreAsync && def.asyncInit && !def.initialized) {
-      this.throwError(`Instance "${name}" is not initialized yet`);
+    if (!opts.ignoreAsync && def.asyncInit && !def.asyncInitialized) {
+      this.throwError(`Instance "${name}" is not async initialized yet`);
     }
 
     if (def.instance) {
@@ -355,7 +360,7 @@ class Dic {
     //test for possible init method but without init enabled
     if (this.hasAsyncInit(instance)) {
       if (_.isUndefined(def.asyncInit)) {
-        this.throwError(`${name} has got ${name}.asyncInit() method. Did you forget to mark this instance to be initialized?`);
+        this.throwError(`${name} has got ${name}.asyncInit() method. Did you forget to mark this instance to be async initialized?`);
       } else if (!def.asyncInit) {
         console.warn(`${name} has got ${name}.asyncInit() method but auto init is disabled. Make sure you init the service manually yourself.`);
       }
@@ -382,35 +387,21 @@ class Dic {
    * @returns {*}
    */
   async getAsync(name, opts = {}) {
+    opts = this._createOpts(name, opts);
     const def = this.instances[name];
     if (!def) {
       const loc = this.findContainer(name);
       if (!loc.def) {
-        this.throwError(`Instance "${name}" not defined`);
+        this.throwError(`Instance "${name}" not defined`, opts.stack);
       }
-      return await loc.container.getAsync(loc.name);
+      return await loc.container.getAsync(loc.name, opts);
     }
 
     if (def.instance) {
       return def.instance;
     }
 
-    if (def.type === 'asyncFactory') {
-      this.log(`async ${name} factory`);//XXX
-
-      //make sure all services are also async initialized if needed
-      //for (const param of def.params) {
-      //  await this.getAsync(param);
-      //}
-
-      const services = await this.getServicesAsync(def.params);
-      const ins = def.factory(...services);
-      def.instance = ins;
-      def.initialized = true;
-      return ins;
-    }
-
-    const instance = await this.createInstanceAsync(def);
+    const instance = await this.createInstanceAsync(def, opts);
     if (def.asyncInit) {
       this.log(`async ${name}`);//XXX
 
@@ -424,10 +415,10 @@ class Dic {
         initMethod = def.asyncInit;
       }
       await instance[initMethod]();
-      def.initialized = true;
     }
 
     def.instance = instance;
+    def.asyncInitialized = true;
     return instance;
   }
 
@@ -534,46 +525,147 @@ class Dic {
     return this.children[name];
   }
 
+  /**
+   * Create an instance injecting it's dependencies from the container
+   *
+   * @param {Object} def
+   * @param {Object} opts
+   * @returns {*}
+   */
   createInstance(def, opts) {
+    def = this.validateDef(def);
+
     switch(def.type) {
+      case 'asyncFactory':
+        this.throwError('Use dic.createInstanceAsync() instead');
+        break;
       case 'factory':
-        return def.factory(...(this.getServices(def.params, opts)));
+        return def.factory(...(this.getServices(def.params, def.inject, opts)));
         break;
       case 'class':
-        return new (def.class)(...(this.getServices(def.params, opts)));
+        return new (def.class)(...(this.getServices(def.params, def.inject, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`);
     }
   }
 
+  /**
+   * Create an instance injecting it's dependencies from the container
+   *
+   * @param {Object} def
+   * @param {Object} opts
+   * @returns {*}
+   */
   async createInstanceAsync(def, opts) {
+    def = this.validateDef(def);
+
     switch(def.type) {
+      case 'asyncFactory':
+        return await def.asyncFactory(...(await this.getServicesAsync(def.params, def.inject, opts)));
+        break;
       case 'factory':
-        return def.factory(...(await this.getServicesAsync(def.params, opts)));
+        return def.factory(...(await this.getServicesAsync(def.params, def.inject, opts)));
         break;
       case 'class':
-        return new (def.class)(...(await this.getServicesAsync(def.params, opts)));
+        return new (def.class)(...(await this.getServicesAsync(def.params, def.inject, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`);
     }
   }
 
-  getServices(serviceNames, opts) {
-    if (!_.isArray(serviceNames)) {
-      return [];
+  validateDef(def) {
+    def = Joi.attempt(def, Joi.object().keys({
+      type: Joi.string(),
+      instance: Joi.any(),
+      class: Joi.func(),
+      factory: Joi.func(),
+      asyncInit: Joi.any(),
+      params: Joi.array(),
+      asyncFactory: Joi.func(),
+      inject: Joi.object().default({})
+    }));
+
+    if (!def.type) {
+      for (const type of ['class', 'factory', 'asyncFactory', 'instance']) {
+        if (def[type]) {
+          def.type = type;
+        }
+      }
     }
 
-    return serviceNames.map(serviceName => this.get(serviceName, opts));
+    if (def.type === 'class') {
+      if (_.isUndefined(def.asyncInit)) {
+        const ret = this.parser.parseClass(def.class);
+        if (ret.init) {
+          def.asyncInit = ret.init.name;
+        }
+      }
+    }
+
+    if (!def.params) {
+      switch(def.type) {
+        case 'instance':
+          break;
+        case 'asyncFactory':
+        case 'factory':
+          const ret1 = this.parser.parseFunction(def.factory || def.asyncFactory);
+          def.params = ret1.params;
+          break;
+        case 'class':
+          const ret2 = this.parser.parseClass(def.class);
+          if (ret2.factory.type !== 'ClassConstructor') {
+            this.throwError('Could not find a constructor def');
+          }
+          def.params = ret2.factory.params;
+          break;
+        default:
+          this.throwError(`Unknown instance def type: ${def.type}`);
+      }
+    }
+
+    return def;
   }
 
-  getServicesAsync(serviceNames, opts) {
+  getServices(serviceNames, inject = {}, opts = {}) {
     if (!_.isArray(serviceNames)) {
       return [];
     }
 
-    return Promise.all(serviceNames.map(serviceName => this.getAsync(serviceName, opts)));
+    return serviceNames.map((param) => {
+      if (inject[param]) {
+        return inject[param];
+      }
+      return this.get(param, opts);
+    });
+  }
+
+  getServicesAsync(serviceNames, inject = {}, opts = {}) {
+    if (!_.isArray(serviceNames)) {
+      return [];
+    }
+
+    const servicesPromises = serviceNames.map((param) => {
+      if (inject[param]) {
+        return inject[param];
+      }
+      return this.getAsync(param, opts);
+    });
+
+    return Promise.all(servicesPromises);
+  }
+
+  _createOpts(service, opts) {
+    const instanceOpts = _.cloneDeep(opts);
+    let stack = _.get(instanceOpts, 'stack');
+    if (!stack) {
+      stack = [service ? service : '$this'];
+    } else {
+      stack.push(service);
+    }
+    instanceOpts.stack = stack;
+    return instanceOpts;
   }
 
 }
