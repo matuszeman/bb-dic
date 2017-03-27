@@ -410,8 +410,11 @@ var Dic = function () {
   }, {
     key: 'throwError',
     value: function throwError(msg, stack) {
-      var stackStr = stack.join(' > ');
-      throw new Error(this.getDicInstanceName() + ': ' + msg + ' [' + stackStr + ']');
+      var stackStr = '';
+      if (stack) {
+        stackStr = '[' + stack.join(' > ') + ']';
+      }
+      throw new Error(this.getDicInstanceName() + ': ' + msg + ' ' + stackStr);
     }
 
     /**
@@ -442,11 +445,11 @@ var Dic = function () {
       }
 
       if (def.type === 'asyncFactory' && !def.asyncInitialized) {
-        this.throwError('Async factory for ' + name + ' must be run first. Run dic.asyncInit()');
+        this.throwError('Async factory for ' + name + ' must be run first. Run dic.asyncInit()', opts.stack);
       }
 
       if (!opts.ignoreAsync && def.asyncInit && !def.asyncInitialized) {
-        this.throwError('Instance "' + name + '" is not async initialized yet');
+        this.throwError('Instance "' + name + '" is not async initialized yet', opts.stack);
       }
 
       if (def.instance) {
@@ -458,7 +461,7 @@ var Dic = function () {
       //test for possible init method but without init enabled
       if (this.hasAsyncInit(instance)) {
         if (_.isUndefined(def.asyncInit)) {
-          this.throwError(name + ' has got ' + name + '.asyncInit() method. Did you forget to mark this instance to be async initialized?');
+          this.throwError(name + ' has got ' + name + '.asyncInit() method. Did you forget to mark this instance to be async initialized?', opts.stack);
         } else if (!def.asyncInit) {
           console.warn(name + ' has got ' + name + '.asyncInit() method but auto init is disabled. Make sure you init the service manually yourself.');
         }
@@ -701,7 +704,7 @@ var Dic = function () {
 
       switch (def.type) {
         case 'asyncFactory':
-          this.throwError('Use dic.createInstanceAsync() instead');
+          this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
           break;
         case 'factory':
           return (_def = def).factory.apply(_def, _toConsumableArray(this.getServices(def.params, def.inject, opts)));
@@ -710,7 +713,7 @@ var Dic = function () {
           return new (Function.prototype.bind.apply(def.class, [null].concat(_toConsumableArray(this.getServices(def.params, def.inject, opts)))))();
           break;
         default:
-          this.throwError('Unknown instance def type: ' + def.type);
+          this.throwError('Unknown instance def type: ' + def.type, opts.stack);
       }
     }
 
@@ -782,7 +785,7 @@ var Dic = function () {
                 return _context3.abrupt('return', new _context3.t18());
 
               case 36:
-                this.throwError('Unknown instance def type: ' + def.type);
+                this.throwError('Unknown instance def type: ' + def.type, opts.stack);
 
               case 37:
               case 'end':
