@@ -162,28 +162,28 @@ Config loader - sets up Dic from the config (plain object)
 **Kind**: global class  
 
 * [DicConfigLoader](#DicConfigLoader)
-    * [new DicConfigLoader(dic, opts)](#new_DicConfigLoader_new)
-    * [.loadConfig(config)](#DicConfigLoader+loadConfig)
+    * [new DicConfigLoader(opts)](#new_DicConfigLoader_new)
+    * [.loadConfig(dic, config)](#DicConfigLoader+loadConfig)
 
 <a name="new_DicConfigLoader_new"></a>
 
-### new DicConfigLoader(dic, opts)
+### new DicConfigLoader(opts)
 
 | Param | Type | Description |
 | --- | --- | --- |
-| dic | <code>[Dic](#Dic)</code> |  |
 | opts | <code>Object</code> |  |
 | opts.optionsSuffix | <code>string</code> | What suffix to use for "options" config. See: [loadConfig](#DicConfigLoader+loadConfig) |
 
 <a name="DicConfigLoader+loadConfig"></a>
 
-### dicConfigLoader.loadConfig(config)
+### dicConfigLoader.loadConfig(dic, config)
 Set up Dic according the config
 
 **Kind**: instance method of <code>[DicConfigLoader](#DicConfigLoader)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
+| dic | <code>[Dic](#Dic)</code> |  |
 | config | <code>Object</code> |  |
 | [config.options] | <code>Object</code> | Create plain object "option" instances |
 | [config.aliases] | <code>Object</code> | Create aliases |

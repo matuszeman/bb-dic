@@ -599,6 +599,7 @@ var Dic = function () {
   }, {
     key: 'alias',
     value: function alias(name, _alias) {
+      this.log('aliasing "' + _alias + '" -> "' + name + '"'); //XXX
       if (!this.has(name)) {
         this.throwError('Service "' + name + '" is not registered');
       }
@@ -607,7 +608,6 @@ var Dic = function () {
       }
       var serviceLoc = this.findContainer(name);
       var destLoc = this.findContainer(_alias);
-      this.log('aliasing "' + _alias + '" -> "' + name + '"'); //XXX
       destLoc.container.instances[destLoc.name] = serviceLoc.container.instances[serviceLoc.name];
     }
 

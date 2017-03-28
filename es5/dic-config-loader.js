@@ -12,19 +12,17 @@ var _ = require('lodash');
 
 var DicConfigLoader = function () {
   /**
-   * @param {Dic} dic
    * @param {Object} opts
    * @param {string} opts.optionsSuffix What suffix to use for "options" config. See: {@link DicConfigLoader#loadConfig}
    */
-  function DicConfigLoader(dic) {
-    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  function DicConfigLoader() {
+    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     _classCallCheck(this, DicConfigLoader);
 
     this.options = _.defaults(opts, {
       optionsSuffix: 'Opts'
     });
-    this.dic = dic;
   }
 
   /**
@@ -48,6 +46,7 @@ var DicConfigLoader = function () {
    *   }
    * }
    *
+   * @param {Dic} dic
    * @param {Object} config
    * @param {Object} [config.options] Create plain object "option" instances
    * @param {Object} [config.aliases] Create aliases
@@ -57,25 +56,24 @@ var DicConfigLoader = function () {
 
   _createClass(DicConfigLoader, [{
     key: 'loadConfig',
-    value: function loadConfig(config) {
+    value: function loadConfig(dic, config) {
       var _this = this;
 
       _.each(config.options, function (opts, service) {
-        _this.dic.registerInstance(service + _this.options.optionsSuffix, opts);
+        dic.instance(service + _this.options.optionsSuffix, opts);
       });
 
       _.each(config.aliases, function (alias, service) {
-        _this.dic.alias(alias, service);
+        dic.alias(alias, service);
       });
 
       _.each(config.bindings, function (binding, containerName) {
-        var child = _this.dic.getChild(containerName);
+        var child = dic.getChild(containerName);
 
-        var loader = new DicConfigLoader(_this.options, child);
-        loader.loadConfig(binding);
+        _this.loadConfig(child, binding);
 
         _.each(binding.imports, function (dicService, childService) {
-          _this.dic.alias(dicService, containerName + _this.dic.options.containerSeparator + childService);
+          dic.alias(dicService, containerName + dic.options.containerSeparator + childService);
         });
       });
     }

@@ -446,6 +446,7 @@ class Dic {
    * @param {String} alias Alias
    */
   alias(name, alias) {
+    this.log(`aliasing "${alias}" -> "${name}"`);//XXX
     if (!this.has(name)) {
       this.throwError(`Service "${name}" is not registered`);
     }
@@ -454,7 +455,6 @@ class Dic {
     }
     const serviceLoc = this.findContainer(name);
     const destLoc = this.findContainer(alias);
-    this.log(`aliasing "${alias}" -> "${name}"`);//XXX
     destLoc.container.instances[destLoc.name] = serviceLoc.container.instances[serviceLoc.name];
   }
 

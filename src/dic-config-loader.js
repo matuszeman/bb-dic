@@ -5,15 +5,13 @@ const _ = require('lodash');
  */
 class DicConfigLoader {
   /**
-   * @param {Dic} dic
    * @param {Object} opts
    * @param {string} opts.optionsSuffix What suffix to use for "options" config. See: {@link DicConfigLoader#loadConfig}
    */
-  constructor(dic, opts = {}) {
+  constructor(opts = {}) {
     this.options = _.defaults(opts, {
       optionsSuffix: 'Opts'
     });
-    this.dic = dic;
   }
 
   /**
@@ -37,28 +35,28 @@ class DicConfigLoader {
    *   }
    * }
    *
+   * @param {Dic} dic
    * @param {Object} config
    * @param {Object} [config.options] Create plain object "option" instances
    * @param {Object} [config.aliases] Create aliases
    * @param {Object} [config.bindings] Set up bind Dic
    */
-  loadConfig(config) {
+  loadConfig(dic, config) {
     _.each(config.options, (opts, service) => {
-      this.dic.registerInstance(service + this.options.optionsSuffix, opts);
+      dic.instance(service + this.options.optionsSuffix, opts);
     });
 
     _.each(config.aliases, (alias, service) => {
-      this.dic.alias(alias, service);
+      dic.alias(alias, service);
     });
 
     _.each(config.bindings, (binding, containerName) => {
-      const child = this.dic.getChild(containerName);
+      const child = dic.getChild(containerName);
 
-      const loader = new DicConfigLoader(this.options, child);
-      loader.loadConfig(binding);
+      this.loadConfig(child, binding);
 
       _.each(binding.imports, (dicService, childService) => {
-        this.dic.alias(dicService, containerName + this.dic.options.containerSeparator + childService);
+        dic.alias(dicService, containerName + dic.options.containerSeparator + childService);
       });
     });
   }
