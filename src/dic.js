@@ -531,7 +531,28 @@ class Dic {
   /**
    * Create an instance injecting it's dependencies from the container
    *
+   * @example
+   * class MyClass {
+   *   constructor(myClassOpts, someService) {
+   *   }
+   * }
+   *
+   * dic.instance('myClassOpts', { my: 'options' });
+   * dic.instance('someService', { real: 'service' });
+   *
+   * const ins = dic.createInstance({
+   *   class: MyClass,
+   *   inject: {
+   *     // myClassOpts - injected from dic
+   *     // someService - the below is injected instead of dic registered 'someService'.
+   *     someService: { mock: 'service' }
+   *   }
+   * })
+   *
    * @param {Object} def
+   * @param {function} def.factory Factory function
+   * @param {function} def.class Class constructor
+   * @param {Object} def.inject
    * @param {Object} opts
    * @returns {*}
    */
@@ -554,9 +575,15 @@ class Dic {
   }
 
   /**
-   * Create an instance injecting it's dependencies from the container
+   * Create an instance (async) injecting it's dependencies from the container.
+   *
+   * See {@link Dic#createInstance}
    *
    * @param {Object} def
+   * @param {function} def.asyncFactory Async function
+   * @param {function} def.factory Factory function
+   * @param {function} def.class Class constructor
+   * @param {Object} def.inject
    * @param {Object} opts
    * @returns {*}
    */
