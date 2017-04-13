@@ -10,9 +10,14 @@ npm install matuszeman/bb-dic
 
 # Usage
 
-For ES5 compatible implementation use `require('bb-dic/es5')`.
+For ES5/ES6 compatible implementation use `require('bb-dic/es5')` and include `regenerator-runtime` before:
+```
+require('regenerator-runtime/runtime');
+```
 
 See `examples` folder for full usage examples.
+
+Framework usage examples can be found [at the bottom](#framework-usage-examples).
 
 ## Sync usage
 
@@ -88,11 +93,16 @@ dic.getAsync('myApp').then(app => {
 });
 ```
 
-## Framework usage examples
+
+# API
+
+{{>main}}
+
+# Framework usage examples
 
 Run on NodeJS 7.* with `--harmony` flag
 
-### [Koa](http://koajs.com/)
+## [Koa](http://koajs.com/)
 ```
 const Koa = require('koa');
 const {Dic} = require('bb-dic');
@@ -138,18 +148,26 @@ dic.getAsync('app').then(app => {
 })
 ```
 
-### [Hapi](https://hapijs.com/)
+## [Hapi](https://hapijs.com/)
 ```
 const Hapi = require('hapi');
 const {Dic} = require('bb-dic');
 
 const dic = new Dic();
-dic.instance('functionHandlerOpts', {returnString: 'Hello from function handler'});
-dic.instance('classHandlerOpts', {returnString: 'Hello from class handler'});
+dic.instance('functionHandlerOpts', {
+  response: {
+    msg: 'Hello from function handler'
+  }
+});
+dic.instance('classHandlerOpts', {
+  response: {
+    msg: 'Hello from class handler'
+  }
+});
 
 dic.factory('functionHandler', function (functionHandlerOpts) {
-  return (request, reply) => {
-    reply(functionHandlerOpts.returnString);
+  return async (request, reply) => {
+    reply(functionHandlerOpts.response);
   }
 });
 
@@ -162,8 +180,8 @@ dic.class('classHandler', class ClassHandler {
     // some async initialization
   }
 
-  handler(request, reply) {
-    reply(this.options.returnString);
+  async handler(request, reply) {
+    reply(this.options.response);
   }
 });
 
@@ -172,6 +190,14 @@ dic.factory('server', function(
   classHandler
 ) {
   const server = new Hapi.Server();
+  server.register([
+    require('hapi-async-handler')
+  ], function(err) {
+    if (err) {
+      throw err;
+    }
+  });
+
   server.connection({
     host: 'localhost',
     port: 8000
@@ -180,13 +206,17 @@ dic.factory('server', function(
   server.route({
     method: 'GET',
     path: '/func',
-    handler: functionHandler
+    handler: {
+      async: functionHandler
+    }
   });
 
   server.route({
     method: 'GET',
     path: '/class',
-    handler: classHandler.handler.bind(classHandler)
+    handler: {
+      async: classHandler.handler.bind(classHandler)
+    }
   });
 
   return server;
@@ -201,7 +231,3 @@ dic.getAsync('server').then(server => {
   });
 });
 ```
-
-# API
-
-{{>main}}

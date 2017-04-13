@@ -537,18 +537,12 @@ var Dic = function () {
                   break;
                 }
 
-                this.log('async ' + name); //XXX
-
-                //make sure all services are also async initialized if needed
-                //for (const param of def.params) {
-                //  await this.getAsync(param);
-                //}
-
                 initMethod = 'asyncInit';
 
                 if (_.isString(def.asyncInit)) {
                   initMethod = def.asyncInit;
                 }
+                this.log('Async init: ' + name + '.' + initMethod + '()');
                 _context2.next = 19;
                 return instance[initMethod]();
 

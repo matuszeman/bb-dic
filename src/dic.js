@@ -406,17 +406,11 @@ class Dic {
 
     const instance = await this.createInstanceAsync(def, opts);
     if (def.asyncInit) {
-      this.log(`async ${name}`);//XXX
-
-      //make sure all services are also async initialized if needed
-      //for (const param of def.params) {
-      //  await this.getAsync(param);
-      //}
-
       let initMethod = 'asyncInit';
       if (_.isString(def.asyncInit)) {
         initMethod = def.asyncInit;
       }
+      this.log(`Async init: ${name}.${initMethod}()`);
       await instance[initMethod]();
     }
 

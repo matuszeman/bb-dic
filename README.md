@@ -10,9 +10,14 @@ npm install matuszeman/bb-dic
 
 # Usage
 
-For ES5 compatible implementation use `require('bb-dic/es5')`.
+For ES5/ES6 compatible implementation use `require('bb-dic/es5')` and include `regenerator-runtime` before:
+```
+require('regenerator-runtime/runtime');
+```
 
 See `examples` folder for full usage examples.
+
+Framework usage examples can be found [at the bottom](#framework-usage-examples).
 
 ## Sync usage
 
@@ -88,119 +93,6 @@ dic.getAsync('myApp').then(app => {
 });
 ```
 
-## Framework usage examples
-
-Run on NodeJS 7.* with `--harmony` flag
-
-### [Koa](http://koajs.com/)
-```
-const Koa = require('koa');
-const {Dic} = require('bb-dic');
-
-const dic = new Dic();
-dic.instance('functionMiddlewareOpts', { returnString: 'Hello World' });
-
-dic.factory('functionMiddleware', function(functionMiddlewareOpts) {
-  return async (ctx) => {
-    console.log('functionMiddleware > before');//XXX
-    ctx.body = functionMiddlewareOpts.returnString;
-    console.log('functionMiddleware > after');//XXX
-  }
-});
-
-dic.class('classMiddleware', class ClassMiddleware {
-  async asyncInit() {
-    // some async initialization
-  }
-
-  async middlewareOne(ctx, next) {
-    console.log('classMiddleware.middlewareOne > before');//XXX
-    await next();
-    console.log('classMiddleware.middlewareOne > after');//XXX
-  }
-});
-
-dic.factory('app', function(
-  classMiddleware,
-  functionMiddleware
-) {
-  const app = new Koa();
-
-  app.use(classMiddleware.middlewareOne);
-  app.use(functionMiddleware);
-
-  return app;
-});
-
-dic.getAsync('app').then(app => {
-  app.listen(3000);
-  console.log('Running at: http://localhost:3000');
-})
-```
-
-### [Hapi](https://hapijs.com/)
-```
-const Hapi = require('hapi');
-const {Dic} = require('bb-dic');
-
-const dic = new Dic();
-dic.instance('functionHandlerOpts', {returnString: 'Hello from function handler'});
-dic.instance('classHandlerOpts', {returnString: 'Hello from class handler'});
-
-dic.factory('functionHandler', function (functionHandlerOpts) {
-  return (request, reply) => {
-    reply(functionHandlerOpts.returnString);
-  }
-});
-
-dic.class('classHandler', class ClassHandler {
-  constructor(classHandlerOpts) {
-    this.options = classHandlerOpts;
-  }
-
-  async asyncInit() {
-    // some async initialization
-  }
-
-  handler(request, reply) {
-    reply(this.options.returnString);
-  }
-});
-
-dic.factory('server', function(
-  functionHandler,
-  classHandler
-) {
-  const server = new Hapi.Server();
-  server.connection({
-    host: 'localhost',
-    port: 8000
-  });
-
-  server.route({
-    method: 'GET',
-    path: '/func',
-    handler: functionHandler
-  });
-
-  server.route({
-    method: 'GET',
-    path: '/class',
-    handler: classHandler.handler.bind(classHandler)
-  });
-
-  return server;
-});
-
-dic.getAsync('server').then(server => {
-  server.start((err) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Server running at:', server.info.uri);
-  });
-});
-```
 
 # API
 
@@ -691,3 +583,137 @@ See [createInstance](#Dic+createInstance)
 | def.inject | <code>Object</code> |  |
 | opts | <code>Object</code> |  |
 
+
+# Framework usage examples
+
+Run on NodeJS 7.* with `--harmony` flag
+
+## [Koa](http://koajs.com/)
+```
+const Koa = require('koa');
+const {Dic} = require('bb-dic');
+
+const dic = new Dic();
+dic.instance('functionMiddlewareOpts', { returnString: 'Hello World' });
+
+dic.factory('functionMiddleware', function(functionMiddlewareOpts) {
+  return async (ctx) => {
+    console.log('functionMiddleware > before');//XXX
+    ctx.body = functionMiddlewareOpts.returnString;
+    console.log('functionMiddleware > after');//XXX
+  }
+});
+
+dic.class('classMiddleware', class ClassMiddleware {
+  async asyncInit() {
+    // some async initialization
+  }
+
+  async middlewareOne(ctx, next) {
+    console.log('classMiddleware.middlewareOne > before');//XXX
+    await next();
+    console.log('classMiddleware.middlewareOne > after');//XXX
+  }
+});
+
+dic.factory('app', function(
+  classMiddleware,
+  functionMiddleware
+) {
+  const app = new Koa();
+
+  app.use(classMiddleware.middlewareOne);
+  app.use(functionMiddleware);
+
+  return app;
+});
+
+dic.getAsync('app').then(app => {
+  app.listen(3000);
+  console.log('Running at: http://localhost:3000');
+})
+```
+
+## [Hapi](https://hapijs.com/)
+```
+const Hapi = require('hapi');
+const {Dic} = require('bb-dic');
+
+const dic = new Dic();
+dic.instance('functionHandlerOpts', {
+  response: {
+    msg: 'Hello from function handler'
+  }
+});
+dic.instance('classHandlerOpts', {
+  response: {
+    msg: 'Hello from class handler'
+  }
+});
+
+dic.factory('functionHandler', function (functionHandlerOpts) {
+  return async (request, reply) => {
+    reply(functionHandlerOpts.response);
+  }
+});
+
+dic.class('classHandler', class ClassHandler {
+  constructor(classHandlerOpts) {
+    this.options = classHandlerOpts;
+  }
+
+  async asyncInit() {
+    // some async initialization
+  }
+
+  async handler(request, reply) {
+    reply(this.options.response);
+  }
+});
+
+dic.factory('server', function(
+  functionHandler,
+  classHandler
+) {
+  const server = new Hapi.Server();
+  server.register([
+    require('hapi-async-handler')
+  ], function(err) {
+    if (err) {
+      throw err;
+    }
+  });
+
+  server.connection({
+    host: 'localhost',
+    port: 8000
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/func',
+    handler: {
+      async: functionHandler
+    }
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/class',
+    handler: {
+      async: classHandler.handler.bind(classHandler)
+    }
+  });
+
+  return server;
+});
+
+dic.getAsync('server').then(server => {
+  server.start((err) => {
+    if (err) {
+      throw err;
+    }
+    console.log('Server running at:', server.info.uri);
+  });
+});
+```

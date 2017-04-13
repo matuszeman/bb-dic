@@ -1,4 +1,16 @@
 const {Dic, DicConfigLoader} = require('../src');
+
+const config = {
+  options: {
+    serviceOne: {
+      my: 'options'
+    }
+  },
+  aliases: {
+    serviceOneAlias: 'serviceOne'
+  }
+};
+
 const dic = new Dic({
   debug: true
 });
@@ -10,15 +22,6 @@ dic.class('serviceOne', class ServiceOne {
 });
 
 const loader = new DicConfigLoader();
-loader.loadConfig(dic, {
-  options: {
-    serviceOne: {
-      my: 'options'
-    }
-  },
-  aliases: {
-    serviceOneAlias: 'serviceOne'
-  }
-});
+loader.loadConfig(dic, config);
 
 dic.get('serviceOneAlias');
