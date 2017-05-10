@@ -1,14 +1,34 @@
 'use strict';
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
+var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _ = require('lodash');
 var Joi = require('joi');
@@ -44,7 +64,7 @@ var Dic = function () {
    * @param {boolean} options.debug Debug on/off
    */
   function Dic(options) {
-    _classCallCheck(this, Dic);
+    (0, _classCallCheck3.default)(this, Dic);
 
     this.options = Joi.attempt(options || {}, Joi.object().keys({
       containerSeparator: Joi.string().optional().default('_'),
@@ -62,7 +82,7 @@ var Dic = function () {
     this.parser = new Parser();
   }
 
-  _createClass(Dic, [{
+  (0, _createClass3.default)(Dic, [{
     key: 'log',
     value: function log(msg) {
       if (this.options.debug) {
@@ -276,21 +296,21 @@ var Dic = function () {
   }, {
     key: 'asyncInit',
     value: function () {
-      var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+      var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
         var name, def;
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 this.log('asyncInit started ...'); //XXX
 
                 _context.next = 3;
-                return Promise.all(_.map(this.children, function (child) {
+                return _promise2.default.all(_.map(this.children, function (child) {
                   return child.asyncInit();
                 }));
 
               case 3:
-                _context.t0 = regeneratorRuntime.keys(this.instances);
+                _context.t0 = _regenerator2.default.keys(this.instances);
 
               case 4:
                 if ((_context.t1 = _context.t0()).done) {
@@ -362,7 +382,7 @@ var Dic = function () {
 
       if (name.indexOf(separator) !== -1) {
         var _name$split = name.split(separator),
-            _name$split2 = _slicedToArray(_name$split, 2),
+            _name$split2 = (0, _slicedToArray3.default)(_name$split, 2),
             childName = _name$split2[0],
             serviceName = _name$split2[1];
 
@@ -491,10 +511,10 @@ var Dic = function () {
   }, {
     key: 'getAsync',
     value: function () {
-      var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(name) {
+      var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(name) {
         var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         var def, loc, instance, initMethod;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return _regenerator2.default.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
@@ -722,10 +742,10 @@ var Dic = function () {
           this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
           break;
         case 'factory':
-          return (_def = def).factory.apply(_def, _toConsumableArray(this.getServices(def.params, def.inject, opts)));
+          return (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this.getServices(def.params, def.inject, opts)));
           break;
         case 'class':
-          return new (Function.prototype.bind.apply(def.class, [null].concat(_toConsumableArray(this.getServices(def.params, def.inject, opts)))))();
+          return new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this.getServices(def.params, def.inject, opts)))))();
           break;
         default:
           this.throwError('Unknown instance def type: ' + def.type, opts.stack);
@@ -749,10 +769,10 @@ var Dic = function () {
   }, {
     key: 'createInstanceAsync',
     value: function () {
-      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(def, opts) {
+      var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(def, opts) {
         var _def2, _def3;
 
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
@@ -765,7 +785,7 @@ var Dic = function () {
               case 4:
                 _context3.t1 = (_def2 = def).asyncFactory;
                 _context3.t2 = _def2;
-                _context3.t3 = _toConsumableArray;
+                _context3.t3 = _toConsumableArray3.default;
                 _context3.next = 9;
                 return this.getServicesAsync(def.params, def.inject, opts);
 
@@ -781,7 +801,7 @@ var Dic = function () {
               case 15:
                 _context3.t6 = (_def3 = def).factory;
                 _context3.t7 = _def3;
-                _context3.t8 = _toConsumableArray;
+                _context3.t8 = _toConsumableArray3.default;
                 _context3.next = 20;
                 return this.getServicesAsync(def.params, def.inject, opts);
 
@@ -794,7 +814,7 @@ var Dic = function () {
                 _context3.t11 = Function.prototype.bind;
                 _context3.t12 = def.class;
                 _context3.t13 = [null];
-                _context3.t14 = _toConsumableArray;
+                _context3.t14 = _toConsumableArray3.default;
                 _context3.next = 30;
                 return this.getServicesAsync(def.params, def.inject, opts);
 
@@ -917,7 +937,7 @@ var Dic = function () {
         return _this2.getAsync(param, opts);
       });
 
-      return Promise.all(servicesPromises);
+      return _promise2.default.all(servicesPromises);
     }
   }, {
     key: '_createOpts',
@@ -933,7 +953,6 @@ var Dic = function () {
       return instanceOpts;
     }
   }]);
-
   return Dic;
 }();
 
