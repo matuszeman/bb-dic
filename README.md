@@ -10,10 +10,7 @@ npm install matuszeman/bb-dic
 
 # Usage
 
-For ES5/ES6 compatible implementation use `require('bb-dic/es5')` and include `regenerator-runtime` before:
-```
-require('regenerator-runtime/runtime');
-```
+For ES5/ES6 compatible implementation use `require('bb-dic/es5')`.
 
 See `examples` folder for full usage examples.
 
