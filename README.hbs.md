@@ -228,3 +228,25 @@ dic.getAsync('server').then(server => {
   });
 });
 ```
+
+# Development
+
+Run the command below to builds es5 folder and README.md.
+
+```
+npm run build
+```
+
+## Tests
+
+```
+npm test
+```
+
+# Contribute
+
+Please feel free to submit an issue/PR or contact me at matus.zeman@gmail.com.
+
+# License
+
+[MIT](LICENSE)

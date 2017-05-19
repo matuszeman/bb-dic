@@ -74,7 +74,6 @@ var Dic = function () {
       presence: 'required'
     }));
     this.instances = {};
-    this.loaders = [];
     this.parent = null;
     this.parentOptions = {};
     this.children = {};
@@ -89,13 +88,6 @@ var Dic = function () {
         console.log(this.getDicInstanceName() + ': ' + msg);
       }
     }
-  }, {
-    key: 'registerLoader',
-    value: function registerLoader(loader) {
-      var loadInstances = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-
-      this.loaders.push(loader);
-    }
 
     /**
      * Registers async factory.
@@ -109,14 +101,16 @@ var Dic = function () {
      *   return await MongoClient.connect(mongoConnectionOpts.url);
      * });
      *
-     * @param name
-     * @param factory
+     * @param {String} name
+     * @param {Function} factory
+     * @param {defOpts} [opts]
      */
 
   }, {
     key: 'registerAsyncFactory',
-    value: function registerAsyncFactory(name, factory, opts) {
-      opts = opts || {};
+    value: function registerAsyncFactory(name, factory) {
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       this.log('Adding async factory "' + name + '" Options: ', opts); //XXX
 
       if (!opts.params) {
@@ -150,6 +144,7 @@ var Dic = function () {
      *
      * @param name
      * @param factory
+     * @param {defOpts} [opts]
      */
 
   }, {
@@ -244,8 +239,7 @@ var Dic = function () {
      *
      * @param name
      * @param classDef
-     * @param {Object} opts
-     * @param {boolean|string} opts.asyncInit If true default asyncInit() function is used. If string, provided function is called on {@link Dic#asyncInit}.
+     * @param {defOpts} [opts]
      */
 
   }, {
@@ -742,10 +736,10 @@ var Dic = function () {
           this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
           break;
         case 'factory':
-          return (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this.getServices(def.params, def.inject, opts)));
+          return (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this.getServices(def, opts)));
           break;
         case 'class':
-          return new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this.getServices(def.params, def.inject, opts)))))();
+          return new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this.getServices(def, opts)))))();
           break;
         default:
           this.throwError('Unknown instance def type: ' + def.type, opts.stack);
@@ -787,7 +781,7 @@ var Dic = function () {
                 _context3.t2 = _def2;
                 _context3.t3 = _toConsumableArray3.default;
                 _context3.next = 9;
-                return this.getServicesAsync(def.params, def.inject, opts);
+                return this.getServicesAsync(def, opts);
 
               case 9:
                 _context3.t4 = _context3.sent;
@@ -803,7 +797,7 @@ var Dic = function () {
                 _context3.t7 = _def3;
                 _context3.t8 = _toConsumableArray3.default;
                 _context3.next = 20;
-                return this.getServicesAsync(def.params, def.inject, opts);
+                return this.getServicesAsync(def, opts);
 
               case 20:
                 _context3.t9 = _context3.sent;
@@ -816,7 +810,7 @@ var Dic = function () {
                 _context3.t13 = [null];
                 _context3.t14 = _toConsumableArray3.default;
                 _context3.next = 30;
-                return this.getServicesAsync(def.params, def.inject, opts);
+                return this.getServicesAsync(def, opts);
 
               case 30:
                 _context3.t15 = _context3.sent;
@@ -842,6 +836,14 @@ var Dic = function () {
 
       return createInstanceAsync;
     }()
+
+    /**
+     * @typedef {Object} defOpts
+     * @property {string|boolean} [asyncInit] If true default asyncInit() function is used. If string, provided function is called on {@link Dic#asyncInit}.
+     * @property {Object} [paramsAlias] Use to alias class constructor or factory parameters.
+     * E.g. `{ serviceA: 'serviceB' }` injects `serviceB` instance instead of `serviceA` to the class constructor/factory.
+     */
+
   }, {
     key: 'validateDef',
     value: function validateDef(def) {
@@ -852,6 +854,7 @@ var Dic = function () {
         factory: Joi.func(),
         asyncInit: Joi.any(),
         params: Joi.array(),
+        paramsAlias: Joi.object().default({}),
         asyncFactory: Joi.func(),
         inject: Joi.object().default({})
       }));
@@ -901,43 +904,42 @@ var Dic = function () {
     }
   }, {
     key: 'getServices',
-    value: function getServices(serviceNames) {
+    value: function getServices(def) {
       var _this = this;
 
-      var inject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      if (!_.isArray(serviceNames)) {
-        return [];
-      }
-
-      return serviceNames.map(function (param) {
-        if (inject[param]) {
-          return inject[param];
+      var params = this._getDefParams(def);
+      return params.map(function (param) {
+        if (def.inject[param]) {
+          return def.inject[param];
         }
         return _this.get(param, opts);
       });
     }
   }, {
     key: 'getServicesAsync',
-    value: function getServicesAsync(serviceNames) {
+    value: function getServicesAsync(def) {
       var _this2 = this;
 
-      var inject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      if (!_.isArray(serviceNames)) {
-        return [];
-      }
-
-      var servicesPromises = serviceNames.map(function (param) {
-        if (inject[param]) {
-          return inject[param];
+      var params = this._getDefParams(def);
+      var servicesPromises = params.map(function (param) {
+        if (def.inject[param]) {
+          return def.inject[param];
         }
         return _this2.getAsync(param, opts);
       });
 
       return _promise2.default.all(servicesPromises);
+    }
+  }, {
+    key: '_getDefParams',
+    value: function _getDefParams(def) {
+      return def.params.map(function (param) {
+        return _.get(def.paramsAlias, param, param);
+      });
     }
   }, {
     key: '_createOpts',

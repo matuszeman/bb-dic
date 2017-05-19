@@ -109,6 +109,13 @@ dic.getAsync('myApp').then(app => {
 </dd>
 </dl>
 
+## Typedefs
+
+<dl>
+<dt><a href="#defOpts">defOpts</a> : <code>Object</code></dt>
+<dd></dd>
+</dl>
+
 <a name="DicClassLoader"></a>
 
 ## DicClassLoader
@@ -223,10 +230,10 @@ For more usage examples see: [instance](#Dic+instance), [class](#Dic+class), [fa
 
 * [Dic](#Dic)
     * [new Dic(options)](#new_Dic_new)
-    * [.asyncFactory(name, factory)](#Dic+asyncFactory)
-    * [.factory(name, factory)](#Dic+factory)
+    * [.asyncFactory(name, factory, [opts])](#Dic+asyncFactory)
+    * [.factory(name, factory, [opts])](#Dic+factory)
     * [.instance(name, instance)](#Dic+instance)
-    * [.class(name, classDef, opts)](#Dic+class)
+    * [.class(name, classDef, [opts])](#Dic+class)
     * [.asyncInit()](#Dic+asyncInit)
     * [.has(name)](#Dic+has) ⇒ <code>boolean</code>
     * [.get(name)](#Dic+get) ⇒ <code>\*</code>
@@ -264,17 +271,18 @@ const myService = dic.get('myService');
 ```
 <a name="Dic+asyncFactory"></a>
 
-### dic.asyncFactory(name, factory)
+### dic.asyncFactory(name, factory, [opts])
 Registers async factory.
 
 Factory function is called asynchronously and should return an instance of the service.
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
 
-| Param |
-| --- |
-| name | 
-| factory | 
+| Param | Type |
+| --- | --- |
+| name | <code>String</code> | 
+| factory | <code>function</code> | 
+| [opts] | <code>[defOpts](#defOpts)</code> | 
 
 **Example**  
 ```js
@@ -285,17 +293,18 @@ dic.asyncFactory('mongoConnection', async function(mongoConnectionOpts) {
 ```
 <a name="Dic+factory"></a>
 
-### dic.factory(name, factory)
+### dic.factory(name, factory, [opts])
 Register a factory.
 
 The factory function should return an instance of the service.
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
 
-| Param |
-| --- |
-| name | 
-| factory | 
+| Param | Type |
+| --- | --- |
+| name |  | 
+| factory |  | 
+| [opts] | <code>[defOpts](#defOpts)</code> | 
 
 **Example**  
 ```js
@@ -324,17 +333,16 @@ dic.instance('myFunction', function(msg) { console.log(msg) });
 ```
 <a name="Dic+class"></a>
 
-### dic.class(name, classDef, opts)
+### dic.class(name, classDef, [opts])
 Register a class
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| name |  |  |
-| classDef |  |  |
-| opts | <code>Object</code> |  |
-| opts.asyncInit | <code>boolean</code> &#124; <code>string</code> | If true default asyncInit() function is used. If string, provided function is called on [asyncInit](#Dic+asyncInit). |
+| Param | Type |
+| --- | --- |
+| name |  | 
+| classDef |  | 
+| [opts] | <code>[defOpts](#defOpts)</code> | 
 
 **Example**  
 ```js
@@ -580,6 +588,17 @@ See [createInstance](#Dic+createInstance)
 | def.inject | <code>Object</code> |  |
 | opts | <code>Object</code> |  |
 
+<a name="defOpts"></a>
+
+## defOpts : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| asyncInit | <code>string</code> &#124; <code>boolean</code> | If true default asyncInit() function is used. If string, provided function is called on [asyncInit](#Dic+asyncInit). |
+| paramsAlias | <code>Object</code> | Use to alias class constructor or factory parameters. E.g. `{ serviceA: 'serviceB' }` injects `serviceB` instance instead of `serviceA` to the class constructor/factory. |
+
 
 # Framework usage examples
 
@@ -714,3 +733,25 @@ dic.getAsync('server').then(server => {
   });
 });
 ```
+
+# Development
+
+Run the command below to builds es5 folder and README.md.
+
+```
+npm run build
+```
+
+## Tests
+
+```
+npm test
+```
+
+# Contribute
+
+Please feel free to submit an issue/PR or contact me at matus.zeman@gmail.com.
+
+# License
+
+[MIT](LICENSE)

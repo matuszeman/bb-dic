@@ -41,7 +41,6 @@ class Dic {
       presence: 'required'
     }));
     this.instances = {};
-    this.loaders = [];
     this.parent = null;
     this.parentOptions = {};
     this.children = {};
@@ -53,10 +52,6 @@ class Dic {
     if (this.options.debug) {
       console.log(`${this.getDicInstanceName()}: ${msg}`);
     }
-  }
-
-  registerLoader(loader, loadInstances = []) {
-    this.loaders.push(loader);
   }
 
   /**
@@ -72,11 +67,11 @@ class Dic {
    *   return await MongoClient.connect(mongoConnectionOpts.url);
    * });
    *
-   * @param name
-   * @param factory
+   * @param {String} name
+   * @param {Function} factory
+   * @param {defOpts} [opts]
    */
-  registerAsyncFactory(name, factory, opts) {
-    opts = opts || {};
+  registerAsyncFactory(name, factory, opts = {}) {
     this.log(`Adding async factory "${name}" Options: `, opts);//XXX
 
     if (!opts.params) {
@@ -109,6 +104,7 @@ class Dic {
    *
    * @param name
    * @param factory
+   * @param {defOpts} [opts]
    */
   registerFactory(name, factory, opts = {}) {
     this.log(`Adding factory "${name}" Options: `, opts);//XXX
@@ -191,8 +187,7 @@ class Dic {
    *
    * @param name
    * @param classDef
-   * @param {Object} opts
-   * @param {boolean|string} opts.asyncInit If true default asyncInit() function is used. If string, provided function is called on {@link Dic#asyncInit}.
+   * @param {defOpts} [opts]
    */
   registerClass(name, classDef, opts = {}) {
     this.log(`Adding class "${name}" Options: `, opts);//XXX
@@ -558,10 +553,10 @@ class Dic {
         this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
         break;
       case 'factory':
-        return def.factory(...(this.getServices(def.params, def.inject, opts)));
+        return def.factory(...(this.getServices(def, opts)));
         break;
       case 'class':
-        return new (def.class)(...(this.getServices(def.params, def.inject, opts)));
+        return new (def.class)(...(this.getServices(def, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`, opts.stack);
@@ -586,19 +581,25 @@ class Dic {
 
     switch(def.type) {
       case 'asyncFactory':
-        return await def.asyncFactory(...(await this.getServicesAsync(def.params, def.inject, opts)));
+        return await def.asyncFactory(...(await this.getServicesAsync(def, opts)));
         break;
       case 'factory':
-        return def.factory(...(await this.getServicesAsync(def.params, def.inject, opts)));
+        return def.factory(...(await this.getServicesAsync(def, opts)));
         break;
       case 'class':
-        return new (def.class)(...(await this.getServicesAsync(def.params, def.inject, opts)));
+        return new (def.class)(...(await this.getServicesAsync(def, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`, opts.stack);
     }
   }
 
+  /**
+   * @typedef {Object} defOpts
+   * @property {string|boolean} [asyncInit] If true default asyncInit() function is used. If string, provided function is called on {@link Dic#asyncInit}.
+   * @property {Object} [paramsAlias] Use to alias class constructor or factory parameters.
+   * E.g. `{ serviceA: 'serviceB' }` injects `serviceB` instance instead of `serviceA` to the class constructor/factory.
+   */
   validateDef(def) {
     def = Joi.attempt(def, Joi.object().keys({
       type: Joi.string(),
@@ -607,6 +608,7 @@ class Dic {
       factory: Joi.func(),
       asyncInit: Joi.any(),
       params: Joi.array(),
+      paramsAlias: Joi.object().default({}),
       asyncFactory: Joi.func(),
       inject: Joi.object().default({})
     }));
@@ -652,32 +654,32 @@ class Dic {
     return def;
   }
 
-  getServices(serviceNames, inject = {}, opts = {}) {
-    if (!_.isArray(serviceNames)) {
-      return [];
-    }
-
-    return serviceNames.map((param) => {
-      if (inject[param]) {
-        return inject[param];
+  getServices(def, opts = {}) {
+    const params = this._getDefParams(def);
+    return params.map((param) => {
+      if (def.inject[param]) {
+        return def.inject[param];
       }
       return this.get(param, opts);
     });
   }
 
-  getServicesAsync(serviceNames, inject = {}, opts = {}) {
-    if (!_.isArray(serviceNames)) {
-      return [];
-    }
-
-    const servicesPromises = serviceNames.map((param) => {
-      if (inject[param]) {
-        return inject[param];
+  getServicesAsync(def, opts = {}) {
+    const params = this._getDefParams(def);
+    const servicesPromises = params.map((param) => {
+      if (def.inject[param]) {
+        return def.inject[param];
       }
       return this.getAsync(param, opts);
     });
 
     return Promise.all(servicesPromises);
+  }
+
+  _getDefParams(def) {
+    return def.params.map((param) => {
+      return _.get(def.paramsAlias, param, param);
+    })
   }
 
   _createOpts(service, opts) {
