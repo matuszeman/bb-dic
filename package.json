@@ -1,13 +1,13 @@
 {
   "name": "bb-dic",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "A dependency injection container",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --harmony 'src/**/*.spec.js'",
     "test-watch": "mocha --harmony --watch 'src/**/*.spec.js'",
     "build": "npm run es5 && npm run docs",
-    "es5": "babel src -d es5",
+    "es5": "babel src -d es5 --ignore '**/*.spec.js'",
     "docs": "jsdoc2md --configure jsdoc.json --template README.hbs.md \"src/**/*.js\" > README.md"
   },
   "author": "Matus Zeman <matus.zeman@gmail.com>",

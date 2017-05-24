@@ -38,7 +38,7 @@ var Parser = require('./parser');
  * Dependency injection container
  *
  * For more usage examples see: {@link Dic#instance}, {@link Dic#class}, {@link Dic#factory},
- * {@link Dic#asyncFactory}, {@link Dic#bindChild}.
+ * {@link Dic#asyncFactory}, {@link Dic#bind}.
  *
  * @example // Dependency injection example
  * class MyService {
@@ -60,7 +60,7 @@ var Dic = function () {
 
   /**
    * @param {Object} options
-   * @param {String} options.containerSeparator Container / service name separator. Default `_`. See {@link Dic#bindChild}
+   * @param {String} options.containerSeparator Container / service name separator. Default `_`. See {@link Dic#bind}
    * @param {boolean} options.debug Debug on/off
    */
   function Dic(options) {
@@ -266,7 +266,7 @@ var Dic = function () {
       if (ret.def) {
         this.throwError('Service "' + name + '" already registered');
       }
-
+      def.container = this;
       ret.container.instances[ret.name] = this.validateDef(def);
     }
 
@@ -659,12 +659,14 @@ var Dic = function () {
      * const dic = new Dic();
      * dic.class('myService', MyService);
      *
-     * dic.bindChild(packageDic, {
+     * dic.bind(packageDic, {
      *   name: 'myPackage'
      * })
      *
      * // get a child service instance directly
      * const logger = dic.get('myPackage_logger');
+     *
+     * @alias Dic#bind
      *
      * @param {Dic} dic
      * @param {Object} opts
@@ -672,8 +674,8 @@ var Dic = function () {
      */
 
   }, {
-    key: 'bindChild',
-    value: function bindChild(dic) {
+    key: 'bindContainer',
+    value: function bindContainer(dic) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       opts = Joi.attempt(opts, {
@@ -686,8 +688,15 @@ var Dic = function () {
       this.children[opts.name] = dic;
     }
   }, {
-    key: 'getChild',
-    value: function getChild(name) {
+    key: 'bind',
+    value: function bind(dic) {
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      this.bindContainer(dic, opts);
+    }
+  }, {
+    key: 'getBoundContainer',
+    value: function getBoundContainer(name) {
       if (!this.children[name]) {
         this.throwError(name + ' child container does not exist');
       }
@@ -830,7 +839,7 @@ var Dic = function () {
         }, _callee3, this);
       }));
 
-      function createInstanceAsync(_x9, _x10) {
+      function createInstanceAsync(_x10, _x11) {
         return _ref3.apply(this, arguments);
       }
 
@@ -856,7 +865,8 @@ var Dic = function () {
         params: Joi.array(),
         paramsAlias: Joi.object().default({}),
         asyncFactory: Joi.func(),
-        inject: Joi.object().default({})
+        inject: Joi.object().default({}),
+        container: Joi.object().type(Dic).optional().default(this)
       }));
 
       if (!def.type) {
@@ -905,31 +915,29 @@ var Dic = function () {
   }, {
     key: 'getServices',
     value: function getServices(def) {
-      var _this = this;
-
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var container = def.container;
 
       var params = this._getDefParams(def);
       return params.map(function (param) {
         if (def.inject[param]) {
           return def.inject[param];
         }
-        return _this.get(param, opts);
+        return container.get(param, opts);
       });
     }
   }, {
     key: 'getServicesAsync',
     value: function getServicesAsync(def) {
-      var _this2 = this;
-
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var container = def.container;
 
       var params = this._getDefParams(def);
       var servicesPromises = params.map(function (param) {
         if (def.inject[param]) {
           return def.inject[param];
         }
-        return _this2.getAsync(param, opts);
+        return container.getAsync(param, opts);
       });
 
       return _promise2.default.all(servicesPromises);

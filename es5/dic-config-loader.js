@@ -73,7 +73,7 @@ var DicConfigLoader = function () {
       });
 
       _.each(config.bindings, function (binding, containerName) {
-        var child = dic.getChild(containerName);
+        var child = dic.getBoundContainer(containerName);
 
         _this.loadConfig(child, binding);
 

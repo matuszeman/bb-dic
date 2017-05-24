@@ -8,7 +8,7 @@ const Parser = require('./parser');
  * Dependency injection container
  *
  * For more usage examples see: {@link Dic#instance}, {@link Dic#class}, {@link Dic#factory},
- * {@link Dic#asyncFactory}, {@link Dic#bindChild}.
+ * {@link Dic#asyncFactory}, {@link Dic#bind}.
  *
  * @example // Dependency injection example
  * class MyService {
@@ -29,7 +29,7 @@ class Dic {
 
   /**
    * @param {Object} options
-   * @param {String} options.containerSeparator Container / service name separator. Default `_`. See {@link Dic#bindChild}
+   * @param {String} options.containerSeparator Container / service name separator. Default `_`. See {@link Dic#bind}
    * @param {boolean} options.debug Debug on/off
    */
   constructor(options) {
@@ -207,7 +207,7 @@ class Dic {
     if (ret.def) {
       this.throwError(`Service "${name}" already registered`);
     }
-
+    def.container = this;
     ret.container.instances[ret.name] = this.validateDef(def);
   }
 
@@ -487,18 +487,20 @@ class Dic {
    * const dic = new Dic();
    * dic.class('myService', MyService);
    *
-   * dic.bindChild(packageDic, {
+   * dic.bind(packageDic, {
    *   name: 'myPackage'
    * })
    *
    * // get a child service instance directly
    * const logger = dic.get('myPackage_logger');
    *
+   * @alias Dic#bind
+   *
    * @param {Dic} dic
    * @param {Object} opts
    * @param {String} opts.name Container services prefix name
    */
-  bindChild(dic, opts = {}) {
+  bindContainer(dic, opts = {}) {
     opts = Joi.attempt(opts, {
       name: Joi.string().required()
     });
@@ -509,7 +511,11 @@ class Dic {
     this.children[opts.name] = dic;
   }
 
-  getChild(name) {
+  bind(dic, opts = {}) {
+    this.bindContainer(dic, opts);
+  }
+
+  getBoundContainer(name) {
     if (!this.children[name]) {
       this.throwError(`${name} child container does not exist`);
     }
@@ -610,7 +616,8 @@ class Dic {
       params: Joi.array(),
       paramsAlias: Joi.object().default({}),
       asyncFactory: Joi.func(),
-      inject: Joi.object().default({})
+      inject: Joi.object().default({}),
+      container: Joi.object().type(Dic).optional().default(this)
     }));
 
     if (!def.type) {
@@ -655,22 +662,24 @@ class Dic {
   }
 
   getServices(def, opts = {}) {
+    const {container} = def;
     const params = this._getDefParams(def);
     return params.map((param) => {
       if (def.inject[param]) {
         return def.inject[param];
       }
-      return this.get(param, opts);
+      return container.get(param, opts);
     });
   }
 
   getServicesAsync(def, opts = {}) {
+    const {container} = def;
     const params = this._getDefParams(def);
     const servicesPromises = params.map((param) => {
       if (def.inject[param]) {
         return def.inject[param];
       }
-      return this.getAsync(param, opts);
+      return container.getAsync(param, opts);
     });
 
     return Promise.all(servicesPromises);

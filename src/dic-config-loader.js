@@ -51,7 +51,7 @@ class DicConfigLoader {
     });
 
     _.each(config.bindings, (binding, containerName) => {
-      const child = dic.getChild(containerName);
+      const child = dic.getBoundContainer(containerName);
 
       this.loadConfig(child, binding);
 

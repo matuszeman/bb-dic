@@ -105,7 +105,7 @@ dic.getAsync('myApp').then(app => {
 <dt><a href="#Dic">Dic</a></dt>
 <dd><p>Dependency injection container</p>
 <p>For more usage examples see: <a href="#Dic+instance">instance</a>, <a href="#Dic+class">class</a>, <a href="#Dic+factory">factory</a>,
-<a href="#Dic+asyncFactory">asyncFactory</a>, <a href="#Dic+bindChild">bindChild</a>.</p>
+<a href="#Dic+asyncFactory">asyncFactory</a>, <a href="#Dic+bind">bind</a>.</p>
 </dd>
 </dl>
 
@@ -224,7 +224,7 @@ Set up Dic according the config
 Dependency injection container
 
 For more usage examples see: [instance](#Dic+instance), [class](#Dic+class), [factory](#Dic+factory),
-[asyncFactory](#Dic+asyncFactory), [bindChild](#Dic+bindChild).
+[asyncFactory](#Dic+asyncFactory), [bind](#Dic+bind).
 
 **Kind**: global class  
 
@@ -239,7 +239,7 @@ For more usage examples see: [instance](#Dic+instance), [class](#Dic+class), [fa
     * [.get(name)](#Dic+get) ⇒ <code>\*</code>
     * [.getAsync(name)](#Dic+getAsync) ⇒ <code>\*</code>
     * [.alias(name, alias)](#Dic+alias)
-    * [.bindChild(dic, opts)](#Dic+bindChild)
+    * [.bind(dic, opts)](#Dic+bind)
     * [.createInstance(def, opts)](#Dic+createInstance) ⇒ <code>\*</code>
     * [.createInstanceAsync(def, opts)](#Dic+createInstanceAsync) ⇒ <code>\*</code>
 
@@ -250,7 +250,7 @@ For more usage examples see: [instance](#Dic+instance), [class](#Dic+class), [fa
 | Param | Type | Description |
 | --- | --- | --- |
 | options | <code>Object</code> |  |
-| options.containerSeparator | <code>String</code> | Container / service name separator. Default `_`. See [bindChild](#Dic+bindChild) |
+| options.containerSeparator | <code>String</code> | Container / service name separator. Default `_`. See [bind](#Dic+bind) |
 | options.debug | <code>boolean</code> | Debug on/off |
 
 **Example**  
@@ -478,9 +478,9 @@ dic.alias('one', 'oneAgain');
 
 dic.get('one') === dic.get('oneAgain')
 ```
-<a name="Dic+bindChild"></a>
+<a name="Dic+bind"></a>
 
-### dic.bindChild(dic, opts)
+### dic.bind(dic, opts)
 Bind other Dic instance with this one.
 
 **Kind**: instance method of <code>[Dic](#Dic)</code>  
@@ -529,7 +529,7 @@ class MyService() {
 const dic = new Dic();
 dic.class('myService', MyService);
 
-dic.bindChild(packageDic, {
+dic.bind(packageDic, {
   name: 'myPackage'
 })
 
