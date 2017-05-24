@@ -1,6 +1,6 @@
 {
   "name": "bb-dic",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A dependency injection container",
   "main": "src/index.js",
   "scripts": {
