@@ -96,11 +96,11 @@ dic.getAsync('myApp').then(app => {
 ## Classes
 
 <dl>
-<dt><a href="#DicClassLoader">DicClassLoader</a></dt>
-<dd><p>Class loader</p>
-</dd>
 <dt><a href="#DicConfigLoader">DicConfigLoader</a></dt>
 <dd><p>Config loader - sets up Dic from the config (plain object)</p>
+</dd>
+<dt><a href="#DicLoader">DicLoader</a></dt>
+<dd><p>Dic loader</p>
 </dd>
 <dt><a href="#Dic">Dic</a></dt>
 <dd><p>Dependency injection container</p>
@@ -116,54 +116,6 @@ dic.getAsync('myApp').then(app => {
 <dd></dd>
 </dl>
 
-<a name="DicClassLoader"></a>
-
-## DicClassLoader
-Class loader
-
-**Kind**: global class  
-
-* [DicClassLoader](#DicClassLoader)
-    * [new DicClassLoader(dic, opts)](#new_DicClassLoader_new)
-    * [.loadPath(path)](#DicClassLoader+loadPath)
-
-<a name="new_DicClassLoader_new"></a>
-
-### new DicClassLoader(dic, opts)
-
-| Param | Type | Description |
-| --- | --- | --- |
-| dic | <code>[Dic](#Dic)</code> |  |
-| opts | <code>Object</code> |  |
-| opts.rootDir | <code>string</code> | Absolute path to root folder of source files. Default: `process.cwd()` |
-
-<a name="DicClassLoader+loadPath"></a>
-
-### dicClassLoader.loadPath(path)
-Load all files and register exported classes to [Dic](#Dic).
-
-All files are expected to export a class.
-
-File name dictates what name the service will be registered as.
-E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
-
-**Kind**: instance method of <code>[DicClassLoader](#DicClassLoader)</code>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| path | <code>string</code> | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
-
-**Example**  
-```js
-// Registers all classes under `CWD/src` folder.
-
-const {Dic, DicClassLoader} = require('bb-dic');
-const dic = new Dic();
-const loader = new DicClassLoader(dic);
-loader.loadPath('src/*.js');
-
-module.exports = dic;
-```
 <a name="DicConfigLoader"></a>
 
 ## DicConfigLoader
@@ -217,6 +169,71 @@ Set up Dic according the config
     }
   }
 }
+```
+<a name="DicLoader"></a>
+
+## DicLoader
+Dic loader
+
+**Kind**: global class  
+
+* [DicLoader](#DicLoader)
+    * [new DicLoader(opts)](#new_DicLoader_new)
+    * [.loadPath(dic, path)](#DicLoader+loadPath)
+
+<a name="new_DicLoader_new"></a>
+
+### new DicLoader(opts)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.rootDir | <code>string</code> | Absolute path to root folder of source files. Default: `process.cwd()` |
+
+**Example**  
+```js
+const {Dic, DicLoader} = require('bb-dic');
+const dic = new Dic()
+
+const loader = new DicLoader({
+  rootDir: __dirname //if not specified process.cwd() is used
+});
+
+//loads all .js files under src folder
+loader.loadPath('src/*.js');
+```
+<a name="DicLoader+loadPath"></a>
+
+### dicLoader.loadPath(dic, path)
+Load all instances/factories/classes to [Dic](#Dic).
+
+File types and what they should export
+- name.js -> class
+- name.factory.js -> factory
+- name.async-factory.js -> async factory
+- name.instance.js -> instance
+
+
+File name dictates what name the service will be registered as.
+E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
+
+**Kind**: instance method of <code>[DicLoader](#DicLoader)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| dic | <code>[Dic](#Dic)</code> |  |
+| path | <code>string</code> | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
+
+**Example**  
+```js
+// Registers all services under `CWD/src` folder.
+
+const {Dic, DicLoader} = require('bb-dic');
+const dic = new Dic();
+const loader = new DicLoader();
+loader.loadPath(dic, 'src/*.js');
+
+module.exports = dic;
 ```
 <a name="Dic"></a>
 

@@ -30,7 +30,8 @@ class Parser {
       });
       return this.parseNode(node);
     } catch(e) {
-      console.log('XXX');//XXX
+      console.log('Failed to parse the class');//XXX
+      console.log(target);//XXX
       console.log(e);//XXX
       throw e;
     }

@@ -866,7 +866,7 @@ var Dic = function () {
         paramsAlias: Joi.object().default({}),
         asyncFactory: Joi.func(),
         inject: Joi.object().default({}),
-        container: Joi.object().type(Dic).optional().default(this)
+        container: Joi.object().default(this) //type(Dic) - this does not work when having Dic from different packages obviously
       }));
 
       if (!def.type) {
