@@ -678,8 +678,9 @@ class Dic {
 
     const ret = [];
     for (const param of params) {
-      if (def.inject[param]) {
-        return def.inject[param];
+      if (def.inject && def.inject[param]) {
+        ret.push(def.inject[param]);
+        continue;
       }
       ret.push(await container.getAsync(param, opts));
     }

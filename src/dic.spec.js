@@ -123,4 +123,22 @@ describe('Dic', () => {
       expect(one).equal(two.one);
     });
   });
+
+  describe('.createInstanceAsync()', () => {
+    beforeEach(function() {
+      this.dic.class('one', OneConcrete);
+    });
+
+    it('inject works', async function() {
+      const {dic} = this;
+      const dummy = {dummy: 'object'};
+      const ins = await dic.createInstanceAsync({
+        class: Two,
+        inject: {
+          one: dummy
+        }
+      });
+      expect(ins.one).equal(dummy);
+    });
+  });
 });
