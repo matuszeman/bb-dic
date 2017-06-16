@@ -1,11 +1,11 @@
 {
   "name": "bb-dic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A dependency injection container",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --harmony 'src/**/*.spec.js'",
-    "test-watch": "mocha --harmony --watch 'src/**/*.spec.js'",
+    "test:watch": "mocha --harmony --watch 'src/**/*.spec.js'",
     "build": "npm run es5 && npm run docs",
     "es5": "babel src -d es5 --ignore '**/*.spec.js'",
     "docs": "jsdoc2md --configure jsdoc.json --template README.hbs.md \"src/**/*.js\" > README.md"

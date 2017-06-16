@@ -1,5 +1,9 @@
 'use strict';
 
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
@@ -595,7 +599,7 @@ var Dic = function () {
      * Creates an alias for existing container instance.
      *
      * @example
-     * dic.instance('one', 1);
+     * dic.instance('one', {some: 'instance'});
      * dic.alias('one', 'oneAgain');
      *
      * dic.get('one') === dic.get('oneAgain')
@@ -745,10 +749,10 @@ var Dic = function () {
           this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
           break;
         case 'factory':
-          return (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this.getServices(def, opts)));
+          return (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this._getServices(def, opts)));
           break;
         case 'class':
-          return new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this.getServices(def, opts)))))();
+          return new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this._getServices(def, opts)))))();
           break;
         default:
           this.throwError('Unknown instance def type: ' + def.type, opts.stack);
@@ -790,7 +794,7 @@ var Dic = function () {
                 _context3.t2 = _def2;
                 _context3.t3 = _toConsumableArray3.default;
                 _context3.next = 9;
-                return this.getServicesAsync(def, opts);
+                return this._getServicesAsync(def, opts);
 
               case 9:
                 _context3.t4 = _context3.sent;
@@ -806,7 +810,7 @@ var Dic = function () {
                 _context3.t7 = _def3;
                 _context3.t8 = _toConsumableArray3.default;
                 _context3.next = 20;
-                return this.getServicesAsync(def, opts);
+                return this._getServicesAsync(def, opts);
 
               case 20:
                 _context3.t9 = _context3.sent;
@@ -819,7 +823,7 @@ var Dic = function () {
                 _context3.t13 = [null];
                 _context3.t14 = _toConsumableArray3.default;
                 _context3.next = 30;
-                return this.getServicesAsync(def, opts);
+                return this._getServicesAsync(def, opts);
 
               case 30:
                 _context3.t15 = _context3.sent;
@@ -913,8 +917,8 @@ var Dic = function () {
       return def;
     }
   }, {
-    key: 'getServices',
-    value: function getServices(def) {
+    key: '_getServices',
+    value: function _getServices(def) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var container = def.container;
 
@@ -927,21 +931,107 @@ var Dic = function () {
       });
     }
   }, {
-    key: 'getServicesAsync',
-    value: function getServicesAsync(def) {
-      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var container = def.container;
+    key: '_getServicesAsync',
+    value: function () {
+      var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(def) {
+        var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      var params = this._getDefParams(def);
-      var servicesPromises = params.map(function (param) {
-        if (def.inject[param]) {
-          return def.inject[param];
-        }
-        return container.getAsync(param, opts);
-      });
+        var container, params, ret, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, param;
 
-      return _promise2.default.all(servicesPromises);
-    }
+        return _regenerator2.default.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                container = def.container;
+                params = this._getDefParams(def);
+                ret = [];
+                _iteratorNormalCompletion = true;
+                _didIteratorError = false;
+                _iteratorError = undefined;
+                _context4.prev = 6;
+                _iterator = (0, _getIterator3.default)(params);
+
+              case 8:
+                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                  _context4.next = 20;
+                  break;
+                }
+
+                param = _step.value;
+
+                if (!def.inject[param]) {
+                  _context4.next = 12;
+                  break;
+                }
+
+                return _context4.abrupt('return', def.inject[param]);
+
+              case 12:
+                _context4.t0 = ret;
+                _context4.next = 15;
+                return container.getAsync(param, opts);
+
+              case 15:
+                _context4.t1 = _context4.sent;
+
+                _context4.t0.push.call(_context4.t0, _context4.t1);
+
+              case 17:
+                _iteratorNormalCompletion = true;
+                _context4.next = 8;
+                break;
+
+              case 20:
+                _context4.next = 26;
+                break;
+
+              case 22:
+                _context4.prev = 22;
+                _context4.t2 = _context4['catch'](6);
+                _didIteratorError = true;
+                _iteratorError = _context4.t2;
+
+              case 26:
+                _context4.prev = 26;
+                _context4.prev = 27;
+
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                  _iterator.return();
+                }
+
+              case 29:
+                _context4.prev = 29;
+
+                if (!_didIteratorError) {
+                  _context4.next = 32;
+                  break;
+                }
+
+                throw _iteratorError;
+
+              case 32:
+                return _context4.finish(29);
+
+              case 33:
+                return _context4.finish(26);
+
+              case 34:
+                return _context4.abrupt('return', ret);
+
+              case 35:
+              case 'end':
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this, [[6, 22, 26, 34], [27,, 29, 33]]);
+      }));
+
+      function _getServicesAsync(_x13) {
+        return _ref4.apply(this, arguments);
+      }
+
+      return _getServicesAsync;
+    }()
   }, {
     key: '_getDefParams',
     value: function _getDefParams(def) {

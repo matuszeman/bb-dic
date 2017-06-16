@@ -3,7 +3,15 @@ const Dic = require('./dic');
 
 class Test {
   constructor(testOpts) {
+  }
+}
 
+class OneConcrete {
+}
+
+class Two {
+  constructor(one) {
+    this.one = one;
   }
 }
 
@@ -47,6 +55,72 @@ describe('Dic', () => {
 
     it('resolves the instance', async function() {
       await this.expect.instanceof('test', Test);
+    });
+
+    it('dep injection on factory', function() {
+      const {dic} = this;
+
+      dic.class('one', OneConcrete);
+      dic.class('two', Two);
+
+      dic.factory('fac', function(one, two) {
+        one.test = true;
+        return {
+          one,
+          two
+        }
+      });
+
+      const ret = dic.get('fac');
+      expect(ret.one).equal(ret.two.one);
+    });
+  });
+
+  describe('.getAsync()', () => {
+    /**
+     * covering bug when services in getServicesAsync() were instantiated in parallel so it created two instances
+     */
+    it('should inject same objects', async function() {
+      const {dic} = this;
+
+      dic.class('one', OneConcrete);
+      dic.class('two', Two);
+
+      dic.factory('fac', function(one, two) {
+        one.test = true;
+        return {
+          one,
+          two
+        }
+      });
+
+      const ret = await dic.getAsync('fac');
+      expect(ret.one).equal(ret.two.one);
+    })
+  });
+
+  describe('.alias()', () => {
+    beforeEach(function() {
+      this.dic.class('oneConcrete', OneConcrete);
+      this.dic.class('two', Two);
+      this.dic.alias('oneConcrete', 'one');
+    });
+
+    it('get same instance', function() {
+      const {dic} = this;
+      expect(dic.get('one')).equal(dic.get('oneConcrete'));
+    });
+
+    it('dep injection with alias', function() {
+      const {dic} = this;
+      expect(dic.get('one')).equal(dic.get('two').one);
+    });
+
+    it('async dep injection with alias', async function() {
+      const {dic} = this;
+      const one = await dic.getAsync('one');
+      const two = await dic.getAsync('two');
+      expect(one).equal(two.one);
     });
   });
 });

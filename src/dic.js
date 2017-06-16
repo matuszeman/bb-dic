@@ -426,7 +426,7 @@ class Dic {
    * Creates an alias for existing container instance.
    *
    * @example
-   * dic.instance('one', 1);
+   * dic.instance('one', {some: 'instance'});
    * dic.alias('one', 'oneAgain');
    *
    * dic.get('one') === dic.get('oneAgain')
@@ -559,10 +559,10 @@ class Dic {
         this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
         break;
       case 'factory':
-        return def.factory(...(this.getServices(def, opts)));
+        return def.factory(...(this._getServices(def, opts)));
         break;
       case 'class':
-        return new (def.class)(...(this.getServices(def, opts)));
+        return new (def.class)(...(this._getServices(def, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`, opts.stack);
@@ -587,13 +587,13 @@ class Dic {
 
     switch(def.type) {
       case 'asyncFactory':
-        return await def.asyncFactory(...(await this.getServicesAsync(def, opts)));
+        return await def.asyncFactory(...(await this._getServicesAsync(def, opts)));
         break;
       case 'factory':
-        return def.factory(...(await this.getServicesAsync(def, opts)));
+        return def.factory(...(await this._getServicesAsync(def, opts)));
         break;
       case 'class':
-        return new (def.class)(...(await this.getServicesAsync(def, opts)));
+        return new (def.class)(...(await this._getServicesAsync(def, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`, opts.stack);
@@ -661,7 +661,7 @@ class Dic {
     return def;
   }
 
-  getServices(def, opts = {}) {
+  _getServices(def, opts = {}) {
     const {container} = def;
     const params = this._getDefParams(def);
     return params.map((param) => {
@@ -672,17 +672,19 @@ class Dic {
     });
   }
 
-  getServicesAsync(def, opts = {}) {
+  async _getServicesAsync(def, opts = {}) {
     const {container} = def;
     const params = this._getDefParams(def);
-    const servicesPromises = params.map((param) => {
+
+    const ret = [];
+    for (const param of params) {
       if (def.inject[param]) {
         return def.inject[param];
       }
-      return container.getAsync(param, opts);
-    });
+      ret.push(await container.getAsync(param, opts));
+    }
 
-    return Promise.all(servicesPromises);
+    return ret;
   }
 
   _getDefParams(def) {

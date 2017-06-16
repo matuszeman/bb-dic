@@ -490,7 +490,7 @@ Creates an alias for existing container instance.
 
 **Example**  
 ```js
-dic.instance('one', 1);
+dic.instance('one', {some: 'instance'});
 dic.alias('one', 'oneAgain');
 
 dic.get('one') === dic.get('oneAgain')
