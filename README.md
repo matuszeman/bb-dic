@@ -192,15 +192,17 @@ Dic loader
 
 **Example**  
 ```js
+// Registers all classes/factories/instances under `__dirname/src` folder.
+
 const {Dic, DicLoader} = require('bb-dic');
-const dic = new Dic()
+const dic = new Dic();
 
 const loader = new DicLoader({
-  rootDir: __dirname //if not specified process.cwd() is used
+  rootDir: __dirname //if not specified process.cwd() is used by default
 });
+loader.loadPath(dic, 'src/*.js');
 
-//loads all .js files under src folder
-loader.loadPath('src/*.js');
+module.exports = dic;
 ```
 <a name="DicLoader+loadPath"></a>
 
@@ -224,17 +226,6 @@ E.g. `my-service.js` service would become registered as `myService` => file name
 | dic | <code>[Dic](#Dic)</code> |  |
 | path | <code>string</code> | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
 
-**Example**  
-```js
-// Registers all services under `CWD/src` folder.
-
-const {Dic, DicLoader} = require('bb-dic');
-const dic = new Dic();
-const loader = new DicLoader();
-loader.loadPath(dic, 'src/*.js');
-
-module.exports = dic;
-```
 <a name="Dic"></a>
 
 ## Dic

@@ -953,77 +953,78 @@ var Dic = function () {
 
               case 8:
                 if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context4.next = 20;
+                  _context4.next = 21;
                   break;
                 }
 
                 param = _step.value;
 
-                if (!def.inject[param]) {
-                  _context4.next = 12;
+                if (!(def.inject && def.inject[param])) {
+                  _context4.next = 13;
                   break;
                 }
 
-                return _context4.abrupt('return', def.inject[param]);
+                ret.push(def.inject[param]);
+                return _context4.abrupt('continue', 18);
 
-              case 12:
+              case 13:
                 _context4.t0 = ret;
-                _context4.next = 15;
+                _context4.next = 16;
                 return container.getAsync(param, opts);
 
-              case 15:
+              case 16:
                 _context4.t1 = _context4.sent;
 
                 _context4.t0.push.call(_context4.t0, _context4.t1);
 
-              case 17:
+              case 18:
                 _iteratorNormalCompletion = true;
                 _context4.next = 8;
                 break;
 
-              case 20:
-                _context4.next = 26;
+              case 21:
+                _context4.next = 27;
                 break;
 
-              case 22:
-                _context4.prev = 22;
+              case 23:
+                _context4.prev = 23;
                 _context4.t2 = _context4['catch'](6);
                 _didIteratorError = true;
                 _iteratorError = _context4.t2;
 
-              case 26:
-                _context4.prev = 26;
+              case 27:
                 _context4.prev = 27;
+                _context4.prev = 28;
 
                 if (!_iteratorNormalCompletion && _iterator.return) {
                   _iterator.return();
                 }
 
-              case 29:
-                _context4.prev = 29;
+              case 30:
+                _context4.prev = 30;
 
                 if (!_didIteratorError) {
-                  _context4.next = 32;
+                  _context4.next = 33;
                   break;
                 }
 
                 throw _iteratorError;
 
-              case 32:
-                return _context4.finish(29);
-
               case 33:
-                return _context4.finish(26);
+                return _context4.finish(30);
 
               case 34:
-                return _context4.abrupt('return', ret);
+                return _context4.finish(27);
 
               case 35:
+                return _context4.abrupt('return', ret);
+
+              case 36:
               case 'end':
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[6, 22, 26, 34], [27,, 29, 33]]);
+        }, _callee4, this, [[6, 23, 27, 35], [28,, 30, 34]]);
       }));
 
       function _getServicesAsync(_x13) {

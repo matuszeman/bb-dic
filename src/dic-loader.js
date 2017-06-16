@@ -5,16 +5,17 @@ const globby = require('globby');
 /**
  * Dic loader
  *
- * @example
+ * @example // Registers all classes/factories/instances under `__dirname/src` folder.
+ *
  * const {Dic, DicLoader} = require('bb-dic');
- * const dic = new Dic()
+ * const dic = new Dic();
  *
  * const loader = new DicLoader({
- *   rootDir: __dirname //if not specified process.cwd() is used
+ *   rootDir: __dirname //if not specified process.cwd() is used by default
  * });
+ * loader.loadPath(dic, 'src/*.js');
  *
- * //loads all .js files under src folder
- * loader.loadPath('src/*.js');
+ * module.exports = dic;
  */
 class DicLoader {
   /**
@@ -40,15 +41,6 @@ class DicLoader {
    *
    * File name dictates what name the service will be registered as.
    * E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
-   *
-   * @example // Registers all services under `CWD/src` folder.
-   *
-   * const {Dic, DicLoader} = require('bb-dic');
-   * const dic = new Dic();
-   * const loader = new DicLoader();
-   * loader.loadPath(dic, 'src/*.js');
-   *
-   * module.exports = dic;
    *
    * @param {Dic} dic
    * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
