@@ -19,10 +19,6 @@ dic.class('subService', SubService);
 dic.instance('subServiceOpts', {some: 'opts'});
 
 // use it
-//dic.get('service');
 dic.createInstance({
   class: Service
 });
-//dic.getAsync('service').catch(e => {
-//  console.log(e);//XXX
-//});

@@ -16,7 +16,7 @@ class MyService {
 // register all instances
 dic.instance('myServiceOpts', { some: 'thing' });
 
-const ins = dic.createInstanceAsync({
+dic.createInstanceAsync({
   class: MyService,
   inject: {
     myServiceOpts: {
@@ -26,5 +26,3 @@ const ins = dic.createInstanceAsync({
 }).then(ins => {
   console.log(ins);//XXX
 });
-
-console.log(ins);//XXX

@@ -1,13 +1,13 @@
-const {Dic, DicClassLoader} = require('../src');
+const {Dic, DicLoader} = require('../src');
 
 const dic = new Dic({
   debug: true
 });
 
-const loader = new DicClassLoader(dic, {
+const loader = new DicLoader({
   rootDir: __dirname
 });
-loader.loadPath('src/*.js');
+loader.loadPath(dic, 'src/*.js');
 
 dic.class('app', class App {
   constructor(serviceOne, serviceTwo) {
