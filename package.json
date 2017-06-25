@@ -1,5 +1,5 @@
 {
-  "name": "bb-dic",
+  "name": "@kapitchi/bb-dic",
   "version": "1.0.2",
   "description": "A dependency injection container",
   "main": "src/index.js",
@@ -30,5 +30,20 @@
     "jsdoc-strip-async-await": "^0.1.0",
     "jsdoc-to-markdown": "^2.0.1",
     "mocha": "^3.2.0"
+  },
+  "files": ["es5", "src"],
+  "keywords": [
+    "dependency injection",
+    "container",
+    "di",
+    "dic",
+    "ioc"
+  ],
+  "bugs": {
+    "url" : "https://github.com/matuszeman/bb-dic/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/matuszeman/bb-dic"
   }
 }
