@@ -17,7 +17,7 @@ const Parser = require('./parser');
  *   }
  * }
  *
- * const {Dic} = require('bb-dic');
+ * const {Dic} = require('@kapitchi/bb-dic');
  * const dic = new Dic();
  *
  * dic.instance('myServiceOpts', { some: 'thing' });
@@ -454,7 +454,7 @@ class Dic {
    * // -----------------------------------------
    * // my-package.js - reusable package
    * // -----------------------------------------
-   * const {Dic} = require('bb-dic');
+   * const {Dic} = require('@kapitchi/bb-dic');
    *
    * class Logger {
    *   log(msg) {
@@ -470,7 +470,7 @@ class Dic {
    * // -----------------------------------------
    * // my-application.js - an application itself
    * // -----------------------------------------
-   * const {Dic} = require('bb-dic');
+   * const {Dic} = require('@kapitchi/bb-dic');
    * const packageDic = require('./my-package');
    *
    * class MyService() {

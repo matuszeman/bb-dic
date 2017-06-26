@@ -10,7 +10,7 @@ npm install matuszeman/bb-dic
 
 # Usage
 
-For ES5/ES6 compatible implementation use `require('bb-dic/es5')`.
+For ES5/ES6 compatible implementation use `require('@kapitchi/bb-dic/es5')`.
 
 See `examples` folder for full usage examples.
 
@@ -29,7 +29,7 @@ class MyService {
   }
 }
 
-const {Dic} = require('bb-dic');
+const {Dic} = require('@kapitchi/bb-dic');
 const dic = new Dic();
 
 // register all instances
@@ -51,7 +51,7 @@ app();
 
 Use when one of your class instances or instance factories needs async initialization.
 ```
-const {Dic} = require('bb-dic');
+const {Dic} = require('@kapitchi/bb-dic');
 const dic = new Dic();
 
 class AsyncService {
@@ -102,7 +102,7 @@ Run on NodeJS 7.* with `--harmony` flag
 ## [Koa](http://koajs.com/)
 ```
 const Koa = require('koa');
-const {Dic} = require('bb-dic');
+const {Dic} = require('@kapitchi/bb-dic');
 
 const dic = new Dic();
 dic.instance('functionMiddlewareOpts', { returnString: 'Hello World' });
@@ -148,7 +148,7 @@ dic.getAsync('app').then(app => {
 ## [Hapi](https://hapijs.com/)
 ```
 const Hapi = require('hapi');
-const {Dic} = require('bb-dic');
+const {Dic} = require('@kapitchi/bb-dic');
 
 const dic = new Dic();
 dic.instance('functionHandlerOpts', {

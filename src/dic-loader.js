@@ -7,7 +7,7 @@ const globby = require('globby');
  *
  * @example // Registers all classes/factories/instances under `__dirname/src` folder.
  *
- * const {Dic, DicLoader} = require('bb-dic');
+ * const {Dic, DicLoader} = require('@kapitchi/bb-dic');
  * const dic = new Dic();
  *
  * const loader = new DicLoader({
