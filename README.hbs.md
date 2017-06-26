@@ -5,7 +5,7 @@ A dependency injection container.
 # Installation
 
 ```
-npm install matuszeman/bb-dic
+npm install @kapitchi/bb-dic
 ```
 
 # Usage
