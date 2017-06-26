@@ -83,6 +83,12 @@ var DicLoader = function () {
 
           var _path = this.options.rootDir + '/' + p;
           var mod = require(_path);
+
+          //es6 modules default export
+          if (_.isObject(mod) && mod.__esModule && mod.default) {
+            mod = mod.default;
+          }
+
           var basename = nodePath.basename(p, '.js');
 
           var type = 'class';
