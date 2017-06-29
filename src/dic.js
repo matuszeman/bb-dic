@@ -395,6 +395,16 @@ class Dic {
       return def.instance;
     }
 
+    //make sure that async service can be resolved once only and return same promise
+    // => only first call resolves the service for DIC
+    if(def.initPromise) {
+      return def.initPromise;
+    }
+
+    return def.initPromise = this._getAsyncResolve(def, opts);
+  }
+
+  async _getAsyncResolve(def, opts) {
     const instance = await this.createInstanceAsync(def, opts);
     if (def.asyncInit) {
       let initMethod = 'asyncInit';

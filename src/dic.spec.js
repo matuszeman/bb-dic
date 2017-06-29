@@ -1,4 +1,5 @@
 const expect = require('chai').expect;
+const sinon = require('sinon');
 const Dic = require('./dic');
 
 class Test {
@@ -110,6 +111,24 @@ describe('Dic', () => {
 
       const ret = await dic.getAsync('fac');
       expect(ret.one).equal(ret.two.one);
+    });
+
+    it('uses same promise on parallel getAsync call', async function() {
+      const {dic} = this;
+      const spy = sinon.spy();
+
+      const fac = async () => {
+        spy();
+      };
+
+      dic.asyncFactory('fac', fac);
+
+      // calls in parallel
+      await Promise.all([
+        dic.getAsync('fac'),
+        dic.getAsync('fac')]);
+
+      sinon.assert.calledOnce(spy);
     })
   });
 

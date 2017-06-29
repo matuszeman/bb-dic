@@ -7,7 +7,7 @@
     "test": "mocha --harmony 'src/**/*.spec.js'",
     "test:watch": "mocha --harmony --watch 'src/**/*.spec.js'",
     "build": "npm run es5 && npm run docs",
-    "es5": "babel src -d es5 --ignore '**/*.spec.js'",
+    "es5": "babel src -d es5 --ignore '**/*.spec.js' --source-maps",
     "docs": "jsdoc2md --configure jsdoc.json --template README.hbs.md \"src/**/*.js\" > README.md"
   },
   "author": "Matus Zeman <matus.zeman@gmail.com>",
@@ -29,7 +29,8 @@
     "chai": "^3.5.0",
     "jsdoc-strip-async-await": "^0.1.0",
     "jsdoc-to-markdown": "^2.0.1",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "sinon": "^2.3.6"
   },
   "files": [
     "es5",

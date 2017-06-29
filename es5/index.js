@@ -7,3 +7,4 @@ module.exports = {
   DicFactory: require('./dic-factory'),
   Parser: require('./parser')
 };
+//# sourceMappingURL=index.js.map

@@ -87,3 +87,4 @@ var DicConfigLoader = function () {
 }();
 
 module.exports = DicConfigLoader;
+//# sourceMappingURL=dic-config-loader.js.map

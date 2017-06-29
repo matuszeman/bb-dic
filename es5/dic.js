@@ -286,7 +286,8 @@ var Dic = function () {
     key: 'asyncInit',
     value: function () {
       var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
-        var childName, child, name, def;
+        var childName, child, _name, def;
+
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -319,8 +320,8 @@ var Dic = function () {
                   break;
                 }
 
-                name = _context.t3.value;
-                def = this.instances[name];
+                _name = _context.t3.value;
+                def = this.instances[_name];
 
                 if (!(def.type === 'asyncFactory' || def.asyncInit)) {
                   _context.next = 16;
@@ -328,7 +329,7 @@ var Dic = function () {
                 }
 
                 _context.next = 16;
-                return this.getAsync(name, {
+                return this.getAsync(_name, {
                   stack: []
                 });
 
@@ -514,7 +515,7 @@ var Dic = function () {
     value: function () {
       var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(name) {
         var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        var def, loc, instance, initMethod;
+        var def, loc;
         return _regenerator2.default.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -547,33 +548,17 @@ var Dic = function () {
                 return _context2.abrupt('return', def.instance);
 
               case 10:
-                _context2.next = 12;
-                return this.createInstanceAsync(def, opts);
-
-              case 12:
-                instance = _context2.sent;
-
-                if (!def.asyncInit) {
-                  _context2.next = 19;
+                if (!def.initPromise) {
+                  _context2.next = 12;
                   break;
                 }
 
-                initMethod = 'asyncInit';
+                return _context2.abrupt('return', def.initPromise);
 
-                if (_.isString(def.asyncInit)) {
-                  initMethod = def.asyncInit;
-                }
-                this.log('Async init: ' + name + '.' + initMethod + '()');
-                _context2.next = 19;
-                return instance[initMethod]();
+              case 12:
+                return _context2.abrupt('return', def.initPromise = this._getAsyncResolve(def, opts));
 
-              case 19:
-
-                def.instance = instance;
-                def.asyncInitialized = true;
-                return _context2.abrupt('return', instance);
-
-              case 22:
+              case 13:
               case 'end':
                 return _context2.stop();
             }
@@ -586,6 +571,55 @@ var Dic = function () {
       }
 
       return getAsync;
+    }()
+  }, {
+    key: '_getAsyncResolve',
+    value: function () {
+      var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(def, opts) {
+        var instance, initMethod;
+        return _regenerator2.default.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return this.createInstanceAsync(def, opts);
+
+              case 2:
+                instance = _context3.sent;
+
+                if (!def.asyncInit) {
+                  _context3.next = 9;
+                  break;
+                }
+
+                initMethod = 'asyncInit';
+
+                if (_.isString(def.asyncInit)) {
+                  initMethod = def.asyncInit;
+                }
+                this.log('Async init: ' + name + '.' + initMethod + '()');
+                _context3.next = 9;
+                return instance[initMethod]();
+
+              case 9:
+
+                def.instance = instance;
+                def.asyncInitialized = true;
+                return _context3.abrupt('return', instance);
+
+              case 12:
+              case 'end':
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function _getAsyncResolve(_x8, _x9) {
+        return _ref3.apply(this, arguments);
+      }
+
+      return _getAsyncResolve;
     }()
   }, {
     key: 'hasAsyncInit',
@@ -779,75 +813,75 @@ var Dic = function () {
   }, {
     key: 'createInstanceAsync',
     value: function () {
-      var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(def, opts) {
+      var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(def, opts) {
         var _def2, _def3;
 
-        return _regenerator2.default.wrap(function _callee3$(_context3) {
+        return _regenerator2.default.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
                 def = this.validateDef(def);
 
-                _context3.t0 = def.type;
-                _context3.next = _context3.t0 === 'asyncFactory' ? 4 : _context3.t0 === 'factory' ? 15 : _context3.t0 === 'class' ? 24 : 36;
+                _context4.t0 = def.type;
+                _context4.next = _context4.t0 === 'asyncFactory' ? 4 : _context4.t0 === 'factory' ? 15 : _context4.t0 === 'class' ? 24 : 36;
                 break;
 
               case 4:
-                _context3.t1 = (_def2 = def).asyncFactory;
-                _context3.t2 = _def2;
-                _context3.t3 = _toConsumableArray3.default;
-                _context3.next = 9;
+                _context4.t1 = (_def2 = def).asyncFactory;
+                _context4.t2 = _def2;
+                _context4.t3 = _toConsumableArray3.default;
+                _context4.next = 9;
                 return this._getServicesAsync(def, opts);
 
               case 9:
-                _context3.t4 = _context3.sent;
-                _context3.t5 = (0, _context3.t3)(_context3.t4);
-                _context3.next = 13;
-                return _context3.t1.apply.call(_context3.t1, _context3.t2, _context3.t5);
+                _context4.t4 = _context4.sent;
+                _context4.t5 = (0, _context4.t3)(_context4.t4);
+                _context4.next = 13;
+                return _context4.t1.apply.call(_context4.t1, _context4.t2, _context4.t5);
 
               case 13:
-                return _context3.abrupt('return', _context3.sent);
+                return _context4.abrupt('return', _context4.sent);
 
               case 15:
-                _context3.t6 = (_def3 = def).factory;
-                _context3.t7 = _def3;
-                _context3.t8 = _toConsumableArray3.default;
-                _context3.next = 20;
+                _context4.t6 = (_def3 = def).factory;
+                _context4.t7 = _def3;
+                _context4.t8 = _toConsumableArray3.default;
+                _context4.next = 20;
                 return this._getServicesAsync(def, opts);
 
               case 20:
-                _context3.t9 = _context3.sent;
-                _context3.t10 = (0, _context3.t8)(_context3.t9);
-                return _context3.abrupt('return', _context3.t6.apply.call(_context3.t6, _context3.t7, _context3.t10));
+                _context4.t9 = _context4.sent;
+                _context4.t10 = (0, _context4.t8)(_context4.t9);
+                return _context4.abrupt('return', _context4.t6.apply.call(_context4.t6, _context4.t7, _context4.t10));
 
               case 24:
-                _context3.t11 = Function.prototype.bind;
-                _context3.t12 = def.class;
-                _context3.t13 = [null];
-                _context3.t14 = _toConsumableArray3.default;
-                _context3.next = 30;
+                _context4.t11 = Function.prototype.bind;
+                _context4.t12 = def.class;
+                _context4.t13 = [null];
+                _context4.t14 = _toConsumableArray3.default;
+                _context4.next = 30;
                 return this._getServicesAsync(def, opts);
 
               case 30:
-                _context3.t15 = _context3.sent;
-                _context3.t16 = (0, _context3.t14)(_context3.t15);
-                _context3.t17 = _context3.t13.concat.call(_context3.t13, _context3.t16);
-                _context3.t18 = _context3.t11.apply.call(_context3.t11, _context3.t12, _context3.t17);
-                return _context3.abrupt('return', new _context3.t18());
+                _context4.t15 = _context4.sent;
+                _context4.t16 = (0, _context4.t14)(_context4.t15);
+                _context4.t17 = _context4.t13.concat.call(_context4.t13, _context4.t16);
+                _context4.t18 = _context4.t11.apply.call(_context4.t11, _context4.t12, _context4.t17);
+                return _context4.abrupt('return', new _context4.t18());
 
               case 36:
                 this.throwError('Unknown instance def type: ' + def.type, opts.stack);
 
               case 37:
               case 'end':
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, this);
+        }, _callee4, this);
       }));
 
-      function createInstanceAsync(_x10, _x11) {
-        return _ref3.apply(this, arguments);
+      function createInstanceAsync(_x12, _x13) {
+        return _ref4.apply(this, arguments);
       }
 
       return createInstanceAsync;
@@ -938,14 +972,14 @@ var Dic = function () {
   }, {
     key: '_getServicesAsync',
     value: function () {
-      var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(def) {
+      var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(def) {
         var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         var container, params, ret, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, param;
 
-        return _regenerator2.default.wrap(function _callee4$(_context4) {
+        return _regenerator2.default.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
                 container = def.container;
                 params = this._getDefParams(def);
@@ -953,87 +987,87 @@ var Dic = function () {
                 _iteratorNormalCompletion = true;
                 _didIteratorError = false;
                 _iteratorError = undefined;
-                _context4.prev = 6;
+                _context5.prev = 6;
                 _iterator = (0, _getIterator3.default)(params);
 
               case 8:
                 if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context4.next = 21;
+                  _context5.next = 21;
                   break;
                 }
 
                 param = _step.value;
 
                 if (!(def.inject && def.inject[param])) {
-                  _context4.next = 13;
+                  _context5.next = 13;
                   break;
                 }
 
                 ret.push(def.inject[param]);
-                return _context4.abrupt('continue', 18);
+                return _context5.abrupt('continue', 18);
 
               case 13:
-                _context4.t0 = ret;
-                _context4.next = 16;
+                _context5.t0 = ret;
+                _context5.next = 16;
                 return container.getAsync(param, opts);
 
               case 16:
-                _context4.t1 = _context4.sent;
+                _context5.t1 = _context5.sent;
 
-                _context4.t0.push.call(_context4.t0, _context4.t1);
+                _context5.t0.push.call(_context5.t0, _context5.t1);
 
               case 18:
                 _iteratorNormalCompletion = true;
-                _context4.next = 8;
+                _context5.next = 8;
                 break;
 
               case 21:
-                _context4.next = 27;
+                _context5.next = 27;
                 break;
 
               case 23:
-                _context4.prev = 23;
-                _context4.t2 = _context4['catch'](6);
+                _context5.prev = 23;
+                _context5.t2 = _context5['catch'](6);
                 _didIteratorError = true;
-                _iteratorError = _context4.t2;
+                _iteratorError = _context5.t2;
 
               case 27:
-                _context4.prev = 27;
-                _context4.prev = 28;
+                _context5.prev = 27;
+                _context5.prev = 28;
 
                 if (!_iteratorNormalCompletion && _iterator.return) {
                   _iterator.return();
                 }
 
               case 30:
-                _context4.prev = 30;
+                _context5.prev = 30;
 
                 if (!_didIteratorError) {
-                  _context4.next = 33;
+                  _context5.next = 33;
                   break;
                 }
 
                 throw _iteratorError;
 
               case 33:
-                return _context4.finish(30);
+                return _context5.finish(30);
 
               case 34:
-                return _context4.finish(27);
+                return _context5.finish(27);
 
               case 35:
-                return _context4.abrupt('return', ret);
+                return _context5.abrupt('return', ret);
 
               case 36:
               case 'end':
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this, [[6, 23, 27, 35], [28,, 30, 34]]);
+        }, _callee5, this, [[6, 23, 27, 35], [28,, 30, 34]]);
       }));
 
-      function _getServicesAsync(_x13) {
-        return _ref4.apply(this, arguments);
+      function _getServicesAsync(_x15) {
+        return _ref5.apply(this, arguments);
       }
 
       return _getServicesAsync;
@@ -1063,3 +1097,4 @@ var Dic = function () {
 }();
 
 module.exports = Dic;
+//# sourceMappingURL=dic.js.map

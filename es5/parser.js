@@ -187,3 +187,4 @@ var Parser = function () {
 }();
 
 module.exports = Parser;
+//# sourceMappingURL=parser.js.map

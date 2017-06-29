@@ -58,3 +58,4 @@ module.exports = function () {
   }]);
   return DicFactory;
 }();
+//# sourceMappingURL=dic-factory.js.map
