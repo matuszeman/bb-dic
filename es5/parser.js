@@ -57,8 +57,17 @@ var Parser = function () {
   }, {
     key: 'parseFunction',
     value: function parseFunction(fn) {
+      var fnString = fn.toString();
       // First match everything inside the function argument parens.
-      var args = fn.toString().match(/function\s.*?\(([^)]*)\)/)[1];
+      var matches = fnString.match(/function\s.*?\(([^)]*)\)/);
+      if (matches === null) {
+        //try arrow function (arg1, ...) =>
+        matches = fnString.match(/\(([^)]*)\)\s*=>/);
+      }
+      if (!matches) {
+        throw new Error('Function with invalid format, only "function()" and "() =>" allowed');
+      }
+      var args = matches[1];
 
       // Split the arguments string into an array comma delimited.
       var params = args.split(',').map(function (arg) {

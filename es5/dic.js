@@ -16,10 +16,6 @@ var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
-var _promise = require('babel-runtime/core-js/promise');
-
-var _promise2 = _interopRequireDefault(_promise);
-
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
@@ -116,11 +112,6 @@ var Dic = function () {
       var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
       this.log('Adding async factory "' + name + '" Options: ', opts); //XXX
-
-      if (!opts.params) {
-        var ret = this.parser.parseFunction(factory);
-        opts.params = ret.params;
-      }
 
       this.register(name, _.defaults({
         type: 'asyncFactory',
@@ -295,49 +286,61 @@ var Dic = function () {
     key: 'asyncInit',
     value: function () {
       var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
-        var name, def;
+        var childName, child, name, def;
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 this.log('asyncInit started ...'); //XXX
 
-                _context.next = 3;
-                return _promise2.default.all(_.map(this.children, function (child) {
-                  return child.asyncInit();
-                }));
+                _context.t0 = _regenerator2.default.keys(this.children);
 
-              case 3:
-                _context.t0 = _regenerator2.default.keys(this.instances);
-
-              case 4:
+              case 2:
                 if ((_context.t1 = _context.t0()).done) {
-                  _context.next = 12;
+                  _context.next = 9;
                   break;
                 }
 
-                name = _context.t1.value;
+                childName = _context.t1.value;
+                child = this.children[childName];
+                _context.next = 7;
+                return child.asyncInit();
+
+              case 7:
+                _context.next = 2;
+                break;
+
+              case 9:
+                _context.t2 = _regenerator2.default.keys(this.instances);
+
+              case 10:
+                if ((_context.t3 = _context.t2()).done) {
+                  _context.next = 18;
+                  break;
+                }
+
+                name = _context.t3.value;
                 def = this.instances[name];
 
                 if (!(def.type === 'asyncFactory' || def.asyncInit)) {
-                  _context.next = 10;
+                  _context.next = 16;
                   break;
                 }
 
-                _context.next = 10;
+                _context.next = 16;
                 return this.getAsync(name, {
                   stack: []
                 });
 
-              case 10:
-                _context.next = 4;
+              case 16:
+                _context.next = 10;
                 break;
 
-              case 12:
+              case 18:
 
                 this.log('asyncInit finished.'); //XXX
 
-              case 13:
+              case 19:
               case 'end':
                 return _context.stop();
             }
@@ -871,6 +874,8 @@ var Dic = function () {
         asyncFactory: Joi.func(),
         inject: Joi.object().default({}),
         container: Joi.object().default(this) //type(Dic) - this does not work when having Dic from different packages obviously
+      }).options({
+        allowUnknown: true //e.g. asyncInitialized
       }));
 
       if (!def.type) {

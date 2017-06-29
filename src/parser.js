@@ -38,8 +38,17 @@ class Parser {
   }
 
   parseFunction(fn) {
+    const fnString = fn.toString();
     // First match everything inside the function argument parens.
-    var args = fn.toString().match(/function\s.*?\(([^)]*)\)/)[1];
+    let matches = fnString.match(/function\s.*?\(([^)]*)\)/);
+    if(matches === null) {
+      //try arrow function (arg1, ...) =>
+      matches = fnString.match(/\(([^)]*)\)\s*=>/);
+    }
+    if(!matches) {
+      throw new Error('Function with invalid format, only "function()" and "() =>" allowed');
+    }
+    const args = matches[1];
 
     // Split the arguments string into an array comma delimited.
     const params = args.split(',').map(function(arg) {

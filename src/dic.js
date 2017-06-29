@@ -74,11 +74,6 @@ class Dic {
   registerAsyncFactory(name, factory, opts = {}) {
     this.log(`Adding async factory "${name}" Options: `, opts);//XXX
 
-    if (!opts.params) {
-      const ret = this.parser.parseFunction(factory);
-      opts.params = ret.params;
-    }
-
     this.register(name ,_.defaults({
       type: 'asyncFactory',
       asyncFactory: factory
@@ -230,9 +225,10 @@ class Dic {
   async asyncInit() {
     this.log(`asyncInit started ...`);//XXX
 
-    await Promise.all(_.map(this.children, child => {
-      return child.asyncInit();
-    }));
+    for (const childName in this.children) {
+      const child = this.children[childName];
+      await child.asyncInit();
+    }
 
     for (const name in this.instances) {
       const def = this.instances[name];
@@ -618,6 +614,8 @@ class Dic {
       asyncFactory: Joi.func(),
       inject: Joi.object().default({}),
       container: Joi.object().default(this) //type(Dic) - this does not work when having Dic from different packages obviously
+    }).options({
+      allowUnknown: true //e.g. asyncInitialized
     }));
 
     if (!def.type) {
@@ -638,7 +636,7 @@ class Dic {
     }
 
     if (!def.params) {
-      switch(def.type) {
+      switch (def.type) {
         case 'instance':
           break;
         case 'asyncFactory':
