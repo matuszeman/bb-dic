@@ -29,6 +29,20 @@ describe('Dic', () => {
     this.dic = new Dic();
   });
 
+  describe('.factory()', () => {
+    it('accepts function() {}', async function() {
+      this.dic.factory('test', function(arg1) {});
+    });
+
+    it('accepts function fnName() {}', async function() {
+      this.dic.factory('test', function fnName(arg1) {});
+    });
+
+    it('accepts () => {}', async function() {
+      this.dic.factory('test', (arg1) => {});
+    });
+  });
+
   describe('.class()', () => {
     describe('opts: paramsAlias', () => {
       it('works', async function() {
