@@ -286,8 +286,7 @@ var Dic = function () {
     key: 'asyncInit',
     value: function () {
       var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
-        var childName, child, _name, def;
-
+        var childName, child, name, def;
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -320,8 +319,8 @@ var Dic = function () {
                   break;
                 }
 
-                _name = _context.t3.value;
-                def = this.instances[_name];
+                name = _context.t3.value;
+                def = this.instances[name];
 
                 if (!(def.type === 'asyncFactory' || def.asyncInit)) {
                   _context.next = 16;
@@ -329,7 +328,7 @@ var Dic = function () {
                 }
 
                 _context.next = 16;
-                return this.getAsync(_name, {
+                return this.getAsync(name, {
                   stack: []
                 });
 
@@ -556,7 +555,7 @@ var Dic = function () {
                 return _context2.abrupt('return', def.initPromise);
 
               case 12:
-                return _context2.abrupt('return', def.initPromise = this._getAsyncResolve(def, opts));
+                return _context2.abrupt('return', def.initPromise = this._getAsyncResolve(name, def, opts));
 
               case 13:
               case 'end':
@@ -575,7 +574,7 @@ var Dic = function () {
   }, {
     key: '_getAsyncResolve',
     value: function () {
-      var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(def, opts) {
+      var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(name, def, opts) {
         var instance, initMethod;
         return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
@@ -615,7 +614,7 @@ var Dic = function () {
         }, _callee3, this);
       }));
 
-      function _getAsyncResolve(_x8, _x9) {
+      function _getAsyncResolve(_x8, _x9, _x10) {
         return _ref3.apply(this, arguments);
       }
 
@@ -880,7 +879,7 @@ var Dic = function () {
         }, _callee4, this);
       }));
 
-      function createInstanceAsync(_x12, _x13) {
+      function createInstanceAsync(_x13, _x14) {
         return _ref4.apply(this, arguments);
       }
 
@@ -1066,7 +1065,7 @@ var Dic = function () {
         }, _callee5, this, [[6, 23, 27, 35], [28,, 30, 34]]);
       }));
 
-      function _getServicesAsync(_x15) {
+      function _getServicesAsync(_x16) {
         return _ref5.apply(this, arguments);
       }
 

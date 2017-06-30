@@ -401,10 +401,10 @@ class Dic {
       return def.initPromise;
     }
 
-    return def.initPromise = this._getAsyncResolve(def, opts);
+    return def.initPromise = this._getAsyncResolve(name, def, opts);
   }
 
-  async _getAsyncResolve(def, opts) {
+  async _getAsyncResolve(name, def, opts) {
     const instance = await this.createInstanceAsync(def, opts);
     if (def.asyncInit) {
       let initMethod = 'asyncInit';
