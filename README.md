@@ -1,5 +1,7 @@
 # bb-dic
 
+[![Build Status](https://travis-ci.org/matuszeman/bb-dic.svg?branch=master)](https://travis-ci.org/matuszeman/bb-dic)
+
 A dependency injection container.
 
 # Installation
