@@ -181,7 +181,7 @@ Dic loader
 
 * [DicLoader](#DicLoader)
     * [new DicLoader(opts)](#new_DicLoader_new)
-    * [.loadPath(dic, path)](#DicLoader+loadPath)
+    * [.loadPath(dic, path, [opts])](#DicLoader+loadPath)
 
 <a name="new_DicLoader_new"></a>
 
@@ -208,7 +208,7 @@ module.exports = dic;
 ```
 <a name="DicLoader+loadPath"></a>
 
-### dicLoader.loadPath(dic, path)
+### dicLoader.loadPath(dic, path, [opts])
 Load all instances/factories/classes to [Dic](#Dic).
 
 File types and what they should export
@@ -223,10 +223,12 @@ E.g. `my-service.js` service would become registered as `myService` => file name
 
 **Kind**: instance method of <code>[DicLoader](#DicLoader)</code>  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| dic | <code>[Dic](#Dic)</code> |  |
-| path | <code>string</code> | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| dic | <code>[Dic](#Dic)</code> |  |  |
+| path | <code>string</code> |  | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
+| [opts] | <code>Object</code> |  |  |
+| [opts.prefix] | <code>string</code> | <code>&quot;&#x27;&#x27;&quot;</code> | Instance name prefix |
 
 <a name="Dic"></a>
 

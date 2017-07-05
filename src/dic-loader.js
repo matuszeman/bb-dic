@@ -44,21 +44,27 @@ class DicLoader {
    *
    * @param {Dic} dic
    * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
+   * @param {Object} [opts]
+   * @param {string} [opts.prefix=''] Instance name prefix
    */
-  loadPath(dic, path) {
+  loadPath(dic, path, opts = {}) {
+    _.defaults(opts, {
+      prefix: ''
+    });
+
     const ret = globby.sync(path, {
       cwd: this.options.rootDir
     });
-    for (const p of ret) {
-      const path = this.options.rootDir + '/' + p;
-      let mod = require(path);
+    for (const relPath of ret) {
+      const absPath = this.options.rootDir + '/' + relPath;
+      let mod = require(absPath);
 
       //es6 modules default export
       if (_.isObject(mod) && mod.__esModule && mod.default) {
         mod = mod.default;
       }
 
-      const basename = nodePath.basename(p, '.js');
+      const basename = nodePath.basename(relPath, '.js');
 
       let type = 'class';
       let name =  _.camelCase(basename);
@@ -69,8 +75,28 @@ class DicLoader {
         type = match[2];
       }
 
+      const pathParts = relPath.split('/');
+      const prefixParts = opts.prefix ? [opts.prefix] : [];
+      if (pathParts.length > 1) {
+        //get rid of file name
+        pathParts.pop();
+        prefixParts.push(...pathParts);
+      }
+
+      const prefix = _.map(prefixParts, (val, index) => {
+        val = _.camelCase(val);
+        if (index > 0) {
+          val = _.upperFirst(val);
+        }
+        return val;
+      }).join('');
+
+      if (!_.isEmpty(prefix)) {
+        name = prefix + _.upperFirst(name);
+      }
+
       if (this.options.debug) {
-        console.log(`DicLoader: ${name} [${type}] -> ${path}`);
+        console.log(`DicLoader: ${name} [${type}] -> ${absPath}`);
       }
 
       switch(type) {

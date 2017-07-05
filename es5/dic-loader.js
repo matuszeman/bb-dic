@@ -1,5 +1,9 @@
 'use strict';
 
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
 var _getIterator2 = require('babel-runtime/core-js/get-iterator');
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
@@ -64,12 +68,20 @@ var DicLoader = function () {
    *
    * @param {Dic} dic
    * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
+   * @param {Object} [opts]
+   * @param {string} [opts.prefix=''] Instance name prefix
    */
 
 
   (0, _createClass3.default)(DicLoader, [{
     key: 'loadPath',
     value: function loadPath(dic, path) {
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      _.defaults(opts, {
+        prefix: ''
+      });
+
       var ret = globby.sync(path, {
         cwd: this.options.rootDir
       });
@@ -79,17 +91,17 @@ var DicLoader = function () {
 
       try {
         for (var _iterator = (0, _getIterator3.default)(ret), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var p = _step.value;
+          var relPath = _step.value;
 
-          var _path = this.options.rootDir + '/' + p;
-          var mod = require(_path);
+          var absPath = this.options.rootDir + '/' + relPath;
+          var mod = require(absPath);
 
           //es6 modules default export
           if (_.isObject(mod) && mod.__esModule && mod.default) {
             mod = mod.default;
           }
 
-          var basename = nodePath.basename(p, '.js');
+          var basename = nodePath.basename(relPath, '.js');
 
           var type = 'class';
           var name = _.camelCase(basename);
@@ -100,8 +112,28 @@ var DicLoader = function () {
             type = match[2];
           }
 
+          var pathParts = relPath.split('/');
+          var prefixParts = opts.prefix ? [opts.prefix] : [];
+          if (pathParts.length > 1) {
+            //get rid of file name
+            pathParts.pop();
+            prefixParts.push.apply(prefixParts, (0, _toConsumableArray3.default)(pathParts));
+          }
+
+          var prefix = _.map(prefixParts, function (val, index) {
+            val = _.camelCase(val);
+            if (index > 0) {
+              val = _.upperFirst(val);
+            }
+            return val;
+          }).join('');
+
+          if (!_.isEmpty(prefix)) {
+            name = prefix + _.upperFirst(name);
+          }
+
           if (this.options.debug) {
-            console.log('DicLoader: ' + name + ' [' + type + '] -> ' + _path);
+            console.log('DicLoader: ' + name + ' [' + type + '] -> ' + absPath);
           }
 
           switch (type) {

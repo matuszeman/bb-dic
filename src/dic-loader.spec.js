@@ -2,6 +2,7 @@ const expect = require('chai').expect;
 const {Dic, DicLoader} = require('./index');
 
 const ServiceA = require('../test/dic-loader/service-a');
+const SubOne = require('../test/dic-loader/sub/one');
 
 describe('DicLoader', () => {
   before(function() {
@@ -25,13 +26,16 @@ describe('DicLoader', () => {
     it('works', async function() {
       const {dic, dicLoader} = this;
 
-      dicLoader.loadPath(dic, '*.js');
+      dicLoader.loadPath(dic, '**/*.js', {
+        prefix: 'x'
+      });
       await dic.asyncInit();
 
-      await this.expect.instanceof(dic, 'serviceA', ServiceA);
-      await this.expect.instanceof(dic, 'serviceB', ServiceA);
-      await this.expect.instanceof(dic, 'serviceC', ServiceA);
-      await this.expect.instanceof(dic, 'serviceD', ServiceA);
+      await this.expect.instanceof(dic, 'xServiceA', ServiceA);
+      await this.expect.instanceof(dic, 'xServiceB', ServiceA);
+      await this.expect.instanceof(dic, 'xServiceC', ServiceA);
+      await this.expect.instanceof(dic, 'xServiceD', ServiceA);
+      await this.expect.instanceof(dic, 'xSubOne', SubOne);
     });
   });
 
