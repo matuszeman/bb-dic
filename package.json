@@ -1,6 +1,6 @@
 {
   "name": "@kapitchi/bb-dic",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "A dependency injection container",
   "main": "src/index.js",
   "scripts": {
