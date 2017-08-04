@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/matuszeman/bb-dic.svg?branch=master)](https://travis-ci.org/matuszeman/bb-dic)
 
-A dependency injection container.
+A dependency injection container with async support.
 
 # Installation
 
@@ -13,6 +13,9 @@ npm install @kapitchi/bb-dic
 # Usage
 
 For ES5/ES6 compatible implementation use `require('@kapitchi/bb-dic/es5')`.
+
+DIC uses [acorn](https://www.npmjs.com/package/acorn) to parse the code to discover function parameters.  
+If you encounter parsing issues try to fiddle with `ecmaVersion` parameter (default 8).
 
 See `examples` folder for full usage examples.
 

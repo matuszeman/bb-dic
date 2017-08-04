@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/matuszeman/bb-dic.svg?branch=master)](https://travis-ci.org/matuszeman/bb-dic)
 
-A dependency injection container.
+A dependency injection container with async support.
 
 # Installation
 
@@ -13,6 +13,9 @@ npm install @kapitchi/bb-dic
 # Usage
 
 For ES5/ES6 compatible implementation use `require('@kapitchi/bb-dic/es5')`.
+
+DIC uses [acorn](https://www.npmjs.com/package/acorn) to parse the code to discover function parameters.  
+If you encounter parsing issues try to fiddle with `ecmaVersion` parameter (default 8).
 
 See `examples` folder for full usage examples.
 
@@ -241,7 +244,7 @@ For more usage examples see: [instance](#Dic+instance), [class](#Dic+class), [fa
 **Kind**: global class  
 
 * [Dic](#Dic)
-    * [new Dic(options)](#new_Dic_new)
+    * [new Dic([options])](#new_Dic_new)
     * [.asyncFactory(name, factory, [opts])](#Dic+asyncFactory)
     * [.factory(name, factory, [opts])](#Dic+factory)
     * [.instance(name, instance)](#Dic+instance)
@@ -257,13 +260,14 @@ For more usage examples see: [instance](#Dic+instance), [class](#Dic+class), [fa
 
 <a name="new_Dic_new"></a>
 
-### new Dic(options)
+### new Dic([options])
 
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>Object</code> |  |
-| options.containerSeparator | <code>String</code> | Container / service name separator. Default `_`. See [bind](#Dic+bind) |
-| options.debug | <code>boolean</code> | Debug on/off |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.containerSeparator] | <code>String</code> | <code>_</code> | Container / service name separator. See [bind](#Dic+bind) |
+| [options.debug] | <code>boolean</code> | <code>false</code> | Debug on/off. |
+| [options.ecmaVersion] | <code>number</code> | <code>8</code> | ECMAScript version. |
 
 **Example**  
 ```js

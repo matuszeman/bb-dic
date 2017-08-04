@@ -1,7 +1,7 @@
 {
   "name": "@kapitchi/bb-dic",
   "version": "1.3.0",
-  "description": "A dependency injection container",
+  "description": "A dependency injection container with async support.",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --harmony 'src/**/*.spec.js'",
@@ -13,11 +13,9 @@
   "author": "Matus Zeman <matus.zeman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "acorn": "^4.0.4",
-    "acorn-es7-plugin": "^1.1.5",
+    "acorn": "^5.1.1",
     "babel-runtime": "^6.23.0",
     "globby": "^6.1.0",
-    "is-generator": "^1.0.3",
     "joi": "^10.2.0",
     "lodash": "^4.14.2"
   },

@@ -16,18 +16,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var _ = require('lodash');
 var acorn = require('acorn');
-var loose = require('acorn/dist/acorn_loose');
-//const walk = require('acorn/dist/walk');
-
-require('acorn-es7-plugin')(acorn);
 
 var Parser = function () {
   function Parser(options) {
     (0, _classCallCheck3.default)(this, Parser);
 
-    this.options = {
-      asyncInitMethodNames: ['asyncInit']
-    };
+    this.options = _.defaults({
+      asyncInitMethodNames: ['asyncInit'],
+      ecmaVersion: 8
+    }, options);
   }
 
   (0, _createClass3.default)(Parser, [{
@@ -38,13 +35,8 @@ var Parser = function () {
       }
 
       try {
-        //const node = loose.parse_dammit(target, {
         var node = acorn.parse(target, {
-          //sourceType: 'script',
-          plugins: {
-            asyncawait: true
-          },
-          ecmaVersion: 7
+          ecmaVersion: this.options.ecmaVersion
         });
         return this.parseNode(node);
       } catch (e) {

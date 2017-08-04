@@ -28,14 +28,16 @@ const Parser = require('./parser');
 class Dic {
 
   /**
-   * @param {Object} options
-   * @param {String} options.containerSeparator Container / service name separator. Default `_`. See {@link Dic#bind}
-   * @param {boolean} options.debug Debug on/off
+   * @param {Object} [options]
+   * @param {String} [options.containerSeparator=_] Container / service name separator. See {@link Dic#bind}
+   * @param {boolean} [options.debug=false] Debug on/off.
+   * @param {number} [options.ecmaVersion=8] ECMAScript version.
    */
   constructor(options) {
     this.options = Joi.attempt(options || {}, Joi.object().keys({
       containerSeparator: Joi.string().optional().default('_'),
-      debug: Joi.boolean().optional().default(false)
+      debug: Joi.boolean().optional().default(false),
+      ecmaVersion: Joi.number().optional().default(8)
     }).options({
       stripUnknown: true,
       presence: 'required'
@@ -45,7 +47,9 @@ class Dic {
     this.parentOptions = {};
     this.children = {};
 
-    this.parser = new Parser();
+    this.parser = new Parser({
+      ecmaVersion: this.options.ecmaVersion
+    });
   }
 
   log(msg) {
