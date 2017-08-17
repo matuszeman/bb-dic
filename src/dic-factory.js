@@ -10,20 +10,28 @@ module.exports = class DicFactory {
   }
 
   static createEmitterPromise(emitter, resolveEvent, rejectEvent) {
-    let resolve, reject;
+    let resolve, reject, resolveListener, rejectListener;
+
     const ready = new Promise(function(res, rej) {
       resolve = res;
       reject = rej;
     });
 
-    emitter.once(resolveEvent, () => {
+    resolveListener = () => {
+      if (rejectEvent) {
+        emitter.removeListener(rejectEvent, rejectListener);
+      }
       resolve(emitter);
-    });
+    };
+
+    emitter.once(resolveEvent, resolveListener);
 
     if (rejectEvent) {
-      emitter.once(rejectEvent, (err) => {
+      rejectListener = (err) => {
+        emitter.removeListener(resolveEvent, resolveListener);
         reject(err);
-      });
+      };
+      emitter.once(rejectEvent, rejectListener);
     }
 
     return ready;

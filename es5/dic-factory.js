@@ -37,20 +37,30 @@ module.exports = function () {
     key: "createEmitterPromise",
     value: function createEmitterPromise(emitter, resolveEvent, rejectEvent) {
       var resolve = void 0,
-          reject = void 0;
+          reject = void 0,
+          resolveListener = void 0,
+          rejectListener = void 0;
+
       var ready = new _promise2.default(function (res, rej) {
         resolve = res;
         reject = rej;
       });
 
-      emitter.once(resolveEvent, function () {
+      resolveListener = function resolveListener() {
+        if (rejectEvent) {
+          emitter.removeListener(rejectEvent, rejectListener);
+        }
         resolve(emitter);
-      });
+      };
+
+      emitter.once(resolveEvent, resolveListener);
 
       if (rejectEvent) {
-        emitter.once(rejectEvent, function (err) {
+        rejectListener = function rejectListener(err) {
+          emitter.removeListener(resolveEvent, resolveListener);
           reject(err);
-        });
+        };
+        emitter.once(rejectEvent, rejectListener);
       }
 
       return ready;
