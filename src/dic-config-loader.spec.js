@@ -22,7 +22,7 @@ describe('DicConfigLoader', () => {
     this.dicConfigLoader = new DicConfigLoader();
   });
 
-  describe('.loadConfig()', () => {
+  describe('#loadConfig()', () => {
     describe('opts: aliases, options', () => {
       it('works', async function() {
         const {dic, dicConfigLoader} = this;

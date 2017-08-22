@@ -30,7 +30,7 @@ describe('Dic', () => {
     this.dic = new Dic();
   });
 
-  describe('.factory()', () => {
+  describe('#factory()', () => {
     it('accepts function() {}', async function() {
       this.dic.factory('test', function(arg1) {});
     });
@@ -44,7 +44,7 @@ describe('Dic', () => {
     });
   });
 
-  describe('.class()', () => {
+  describe('#class()', () => {
     describe('opts: paramsAlias', () => {
       it('works', async function() {
         this.dic.instance('testOptsAlias', {
@@ -60,7 +60,7 @@ describe('Dic', () => {
     });
   });
 
-  describe('.get()', () => {
+  describe('#get()', () => {
     beforeEach(function() {
       this.dic.instance('testOpts', {
         my: 'opts'
@@ -91,7 +91,7 @@ describe('Dic', () => {
     });
   });
 
-  describe('.getAsync()', () => {
+  describe('#getAsync()', () => {
     /**
      * covering bug when services in getServicesAsync() were instantiated in parallel so it created two instances
      */
@@ -132,7 +132,7 @@ describe('Dic', () => {
     })
   });
 
-  describe('.alias()', () => {
+  describe('#alias()', () => {
     beforeEach(function() {
       this.dic.class('oneConcrete', OneConcrete);
       this.dic.class('two', Two);
@@ -157,7 +157,7 @@ describe('Dic', () => {
     });
   });
 
-  describe('.createInstanceAsync()', () => {
+  describe('#createInstanceAsync()', () => {
     beforeEach(function() {
       this.dic.class('one', OneConcrete);
     });

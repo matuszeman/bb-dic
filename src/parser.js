@@ -32,7 +32,7 @@ class Parser {
   parseFunction(fn) {
     const fnString = fn.toString();
     // First match everything inside the function argument parens.
-    let matches = fnString.match(/function\s.*?\(([^)]*)\)/);
+    let matches = fnString.match(/function.*?\(([^)]*)\)/);
     if(matches === null) {
       //try arrow function (arg1, ...) =>
       matches = fnString.match(/\(([^)]*)\)\s*=>/);

@@ -22,7 +22,7 @@ describe('DicLoader', () => {
     });
   });
 
-  describe('.loadPath()', () => {
+  describe('#loadPath()', () => {
     it('works', async function() {
       const {dic, dicLoader} = this;
 

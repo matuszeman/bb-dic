@@ -51,7 +51,7 @@ var Parser = function () {
     value: function parseFunction(fn) {
       var fnString = fn.toString();
       // First match everything inside the function argument parens.
-      var matches = fnString.match(/function\s.*?\(([^)]*)\)/);
+      var matches = fnString.match(/function.*?\(([^)]*)\)/);
       if (matches === null) {
         //try arrow function (arg1, ...) =>
         matches = fnString.match(/\(([^)]*)\)\s*=>/);
