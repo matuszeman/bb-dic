@@ -4,7 +4,7 @@
   "description": "A dependency injection container with async support.",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha --harmony 'src/**/*.spec.js'",
+    "test": "mocha --harmony 'src/**/*.spec.js' 'examples/**/*.spec.js'",
     "test:watch": "mocha --harmony --watch 'src/**/*.spec.js'",
     "build": "npm run es5 && npm run docs",
     "es5": "babel src -d es5 --ignore '**/*.spec.js' --source-maps",

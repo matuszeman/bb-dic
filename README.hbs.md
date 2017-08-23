@@ -61,7 +61,7 @@ const dic = new Dic();
 
 class AsyncService {
   async asyncInit() {
-    // some async await calls (or promise can be used too!)
+    // some async await calls
   }
 
   showOff() {
@@ -83,13 +83,7 @@ dic.factory('myApp', function(asyncService, asyncMsg) {
   }
 });
 
-// Instantiate all container's async services and runs myApp
-dic.asyncInit().then(() => {
-  const app = dic.get('myApp');
-  app();
-});
-
-// OR: Creates myApp service and instantiate all its direct dependencies
+// Creates myApp service and instantiate all its direct dependencies
 dic.getAsync('myApp').then(app => {
   app();
 });

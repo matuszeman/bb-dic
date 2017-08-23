@@ -31,9 +31,9 @@ var globby = require('globby');
  * const dic = new Dic();
  *
  * const loader = new DicLoader({
- *   rootDir: __dirname //if not specified process.cwd() is used by default
+ *   rootDir: __dirname + '/src' //if not specified process.cwd() is used by default
  * });
- * loader.loadPath(dic, 'src/*.js');
+ * loader.loadPath(dic, '*.js');
  *
  * module.exports = dic;
  */
@@ -138,7 +138,7 @@ var DicLoader = function () {
 
           switch (type) {
             case 'class':
-              dic.registerClass(name, mod);
+              dic.class(name, mod);
               break;
             case 'async-factory':
               dic.asyncFactory(name, mod);
