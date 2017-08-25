@@ -206,6 +206,7 @@ class Dic {
     if (ret.def) {
       this.throwError(`Service "${name}" already registered`);
     }
+    def.name = name;
     def.container = this;
     ret.container.instances[ret.name] = this.validateDef(def);
   }
@@ -564,19 +565,22 @@ class Dic {
   createInstance(def, opts) {
     def = this.validateDef(def);
 
+    let ins;
     switch(def.type) {
       case 'asyncFactory':
         this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
         break;
       case 'factory':
-        return def.factory(...(this._getServices(def, opts)));
+        ins = def.factory(...(this._getServices(def, opts)));
         break;
       case 'class':
-        return new (def.class)(...(this._getServices(def, opts)));
+        ins = new (def.class)(...(this._getServices(def, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`, opts.stack);
     }
+
+    return this.instanceCreated(ins, def);
   }
 
   /**
@@ -595,19 +599,30 @@ class Dic {
   async createInstanceAsync(def, opts) {
     def = this.validateDef(def);
 
+    let ins;
     switch(def.type) {
       case 'asyncFactory':
-        return await def.asyncFactory(...(await this._getServicesAsync(def, opts)));
+        ins = await def.asyncFactory(...(await this._getServicesAsync(def, opts)));
         break;
       case 'factory':
-        return def.factory(...(await this._getServicesAsync(def, opts)));
+        ins = def.factory(...(await this._getServicesAsync(def, opts)));
         break;
       case 'class':
-        return new (def.class)(...(await this._getServicesAsync(def, opts)));
+        ins = new (def.class)(...(await this._getServicesAsync(def, opts)));
         break;
       default:
         this.throwError(`Unknown instance def type: ${def.type}`, opts.stack);
     }
+
+    return this.instanceCreated(ins, def);
+  }
+
+  instanceCreated(ins, def) {
+    if (this.factoryListener) {
+      return this.factoryListener(ins, def);
+    }
+
+    return ins;
   }
 
   /**
@@ -618,6 +633,7 @@ class Dic {
    */
   validateDef(def) {
     def = Joi.attempt(def, Joi.object().keys({
+      name: Joi.string(),
       type: Joi.string(),
       instance: Joi.any(),
       class: Joi.func(),
