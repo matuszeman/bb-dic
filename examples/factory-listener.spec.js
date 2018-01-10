@@ -36,14 +36,14 @@ describe('Example [alpha functionality]: Dic factory listener', () => {
   });
 
   it('proxy - get trap', () => {
-    class Service {
-      test() {
-        //console.log('Proxy passed!');//XXX
-      }
+    function log(msg) {
+      //console.log(msg);//XXX
     }
 
-    function logger(msg) {
-      console.log(msg);//XXX
+    class Service {
+      test() {
+        log('Proxy passed!');//XXX
+      }
     }
 
     class ClassMethodsProxyHandler {
@@ -58,11 +58,11 @@ describe('Example [alpha functionality]: Dic factory listener', () => {
         }
 
         if (this.proxiedMethods[property]) {
-          //console.log(`>>> Proxied already: ${this.name}.${property}`);//XXX
+          log(`>>> Proxied already: ${this.name}.${property}`);//XXX
           return this.proxiedMethods[property];
         }
 
-        //console.log(`>>> Proxying: ${this.name}.${property}`);//XXX
+        log(`>>> Proxying: ${this.name}.${property}`);//XXX
 
         return this.proxiedMethods[property] = (...args) => {
           return target[property].apply(target, args);
