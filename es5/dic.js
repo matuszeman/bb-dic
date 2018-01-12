@@ -265,6 +265,7 @@ var Dic = function () {
       if (ret.def) {
         this.throwError('Service "' + name + '" already registered');
       }
+      def.name = name;
       def.container = this;
       ret.container.instances[ret.name] = this.validateDef(def);
     }
@@ -289,7 +290,7 @@ var Dic = function () {
   }, {
     key: 'asyncInit',
     value: function () {
-      var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
+      var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
         var childName, child, name, def;
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
@@ -516,7 +517,7 @@ var Dic = function () {
   }, {
     key: 'getAsync',
     value: function () {
-      var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(name) {
+      var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(name) {
         var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         var def, loc;
         return _regenerator2.default.wrap(function _callee2$(_context2) {
@@ -578,7 +579,7 @@ var Dic = function () {
   }, {
     key: '_getAsyncResolve',
     value: function () {
-      var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(name, def, opts) {
+      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(name, def, opts) {
         var instance, initMethod;
         return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
@@ -784,19 +785,22 @@ var Dic = function () {
 
       def = this.validateDef(def);
 
+      var ins = void 0;
       switch (def.type) {
         case 'asyncFactory':
           this.throwError('Use dic.createInstanceAsync() instead', opts.stack);
           break;
         case 'factory':
-          return (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this._getServices(def, opts)));
+          ins = (_def = def).factory.apply(_def, (0, _toConsumableArray3.default)(this._getServices(def, opts)));
           break;
         case 'class':
-          return new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this._getServices(def, opts)))))();
+          ins = new (Function.prototype.bind.apply(def.class, [null].concat((0, _toConsumableArray3.default)(this._getServices(def, opts)))))();
           break;
         default:
           this.throwError('Unknown instance def type: ' + def.type, opts.stack);
       }
+
+      return this.instanceCreated(ins, def);
     }
 
     /**
@@ -816,66 +820,74 @@ var Dic = function () {
   }, {
     key: 'createInstanceAsync',
     value: function () {
-      var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(def, opts) {
+      var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(def, opts) {
         var _def2, _def3;
 
+        var ins;
         return _regenerator2.default.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 def = this.validateDef(def);
 
+                ins = void 0;
                 _context4.t0 = def.type;
-                _context4.next = _context4.t0 === 'asyncFactory' ? 4 : _context4.t0 === 'factory' ? 15 : _context4.t0 === 'class' ? 24 : 36;
+                _context4.next = _context4.t0 === 'asyncFactory' ? 5 : _context4.t0 === 'factory' ? 16 : _context4.t0 === 'class' ? 25 : 37;
                 break;
 
-              case 4:
+              case 5:
                 _context4.t1 = (_def2 = def).asyncFactory;
                 _context4.t2 = _def2;
                 _context4.t3 = _toConsumableArray3.default;
-                _context4.next = 9;
+                _context4.next = 10;
                 return this._getServicesAsync(def, opts);
 
-              case 9:
+              case 10:
                 _context4.t4 = _context4.sent;
                 _context4.t5 = (0, _context4.t3)(_context4.t4);
-                _context4.next = 13;
+                _context4.next = 14;
                 return _context4.t1.apply.call(_context4.t1, _context4.t2, _context4.t5);
 
-              case 13:
-                return _context4.abrupt('return', _context4.sent);
+              case 14:
+                ins = _context4.sent;
+                return _context4.abrupt('break', 38);
 
-              case 15:
+              case 16:
                 _context4.t6 = (_def3 = def).factory;
                 _context4.t7 = _def3;
                 _context4.t8 = _toConsumableArray3.default;
-                _context4.next = 20;
+                _context4.next = 21;
                 return this._getServicesAsync(def, opts);
 
-              case 20:
+              case 21:
                 _context4.t9 = _context4.sent;
                 _context4.t10 = (0, _context4.t8)(_context4.t9);
-                return _context4.abrupt('return', _context4.t6.apply.call(_context4.t6, _context4.t7, _context4.t10));
+                ins = _context4.t6.apply.call(_context4.t6, _context4.t7, _context4.t10);
+                return _context4.abrupt('break', 38);
 
-              case 24:
+              case 25:
                 _context4.t11 = Function.prototype.bind;
                 _context4.t12 = def.class;
                 _context4.t13 = [null];
                 _context4.t14 = _toConsumableArray3.default;
-                _context4.next = 30;
+                _context4.next = 31;
                 return this._getServicesAsync(def, opts);
 
-              case 30:
+              case 31:
                 _context4.t15 = _context4.sent;
                 _context4.t16 = (0, _context4.t14)(_context4.t15);
                 _context4.t17 = _context4.t13.concat.call(_context4.t13, _context4.t16);
                 _context4.t18 = _context4.t11.apply.call(_context4.t11, _context4.t12, _context4.t17);
-                return _context4.abrupt('return', new _context4.t18());
-
-              case 36:
-                this.throwError('Unknown instance def type: ' + def.type, opts.stack);
+                ins = new _context4.t18();
+                return _context4.abrupt('break', 38);
 
               case 37:
+                this.throwError('Unknown instance def type: ' + def.type, opts.stack);
+
+              case 38:
+                return _context4.abrupt('return', this.instanceCreated(ins, def));
+
+              case 39:
               case 'end':
                 return _context4.stop();
             }
@@ -889,6 +901,15 @@ var Dic = function () {
 
       return createInstanceAsync;
     }()
+  }, {
+    key: 'instanceCreated',
+    value: function instanceCreated(ins, def) {
+      if (this.factoryListener) {
+        return this.factoryListener(ins, def);
+      }
+
+      return ins;
+    }
 
     /**
      * @typedef {Object} defOpts
@@ -901,6 +922,7 @@ var Dic = function () {
     key: 'validateDef',
     value: function validateDef(def) {
       def = Joi.attempt(def, Joi.object().keys({
+        name: Joi.string(),
         type: Joi.string(),
         instance: Joi.any(),
         class: Joi.func(),
@@ -975,7 +997,7 @@ var Dic = function () {
   }, {
     key: '_getServicesAsync',
     value: function () {
-      var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(def) {
+      var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(def) {
         var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         var container, params, ret, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, param;
