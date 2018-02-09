@@ -70,6 +70,7 @@ var DicLoader = function () {
    * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
    * @param {Object} [opts]
    * @param {string} [opts.prefix=''] Instance name prefix
+   * @param {string} [opts.rootDir] Overwrites loader's rootDir option
    */
 
 
@@ -83,7 +84,7 @@ var DicLoader = function () {
       });
 
       var ret = globby.sync(path, {
-        cwd: this.options.rootDir
+        cwd: opts.rootDir ? opts.rootDir : this.options.rootDir
       });
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;

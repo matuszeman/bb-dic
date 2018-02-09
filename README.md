@@ -226,6 +226,7 @@ E.g. `my-service.js` service would become registered as `myService` => file name
 | path | <code>string</code> |  | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
 | [opts] | <code>Object</code> |  |  |
 | [opts.prefix] | <code>string</code> | <code>&quot;&#x27;&#x27;&quot;</code> | Instance name prefix |
+| [opts.rootDir] | <code>string</code> |  | Overwrites loader's rootDir option |
 
 <a name="Dic"></a>
 

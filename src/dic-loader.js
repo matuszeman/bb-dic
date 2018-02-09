@@ -46,6 +46,7 @@ class DicLoader {
    * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
    * @param {Object} [opts]
    * @param {string} [opts.prefix=''] Instance name prefix
+   * @param {string} [opts.rootDir] Overwrites loader's rootDir option
    */
   loadPath(dic, path, opts = {}) {
     _.defaults(opts, {
@@ -53,7 +54,7 @@ class DicLoader {
     });
 
     const ret = globby.sync(path, {
-      cwd: this.options.rootDir
+      cwd: opts.rootDir ? opts.rootDir : this.options.rootDir
     });
     for (const relPath of ret) {
       const absPath = this.options.rootDir + '/' + relPath;
