@@ -53,11 +53,13 @@ class DicLoader {
       prefix: ''
     });
 
+    const rootDir = opts.rootDir ? opts.rootDir : this.options.rootDir;
+
     const ret = globby.sync(path, {
-      cwd: opts.rootDir ? opts.rootDir : this.options.rootDir
+      cwd: rootDir
     });
     for (const relPath of ret) {
-      const absPath = this.options.rootDir + '/' + relPath;
+      const absPath = rootDir + '/' + relPath;
       let mod = require(absPath);
 
       //es6 modules default export

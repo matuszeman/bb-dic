@@ -83,8 +83,10 @@ var DicLoader = function () {
         prefix: ''
       });
 
+      var rootDir = opts.rootDir ? opts.rootDir : this.options.rootDir;
+
       var ret = globby.sync(path, {
-        cwd: opts.rootDir ? opts.rootDir : this.options.rootDir
+        cwd: rootDir
       });
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -94,7 +96,7 @@ var DicLoader = function () {
         for (var _iterator = (0, _getIterator3.default)(ret), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var relPath = _step.value;
 
-          var absPath = this.options.rootDir + '/' + relPath;
+          var absPath = rootDir + '/' + relPath;
           var mod = require(absPath);
 
           //es6 modules default export
