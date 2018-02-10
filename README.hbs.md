@@ -138,10 +138,11 @@ dic.factory('app', function(
   return app;
 });
 
-dic.getAsync('app').then(app => {
+(async () => {
+  const app = await dic.getAsync('app');
   app.listen(3000);
   console.log('Running at: http://localhost:3000');
-})
+})();
 ```
 
 ## [Hapi](https://hapijs.com/)
@@ -202,30 +203,23 @@ dic.factory('server', function(
   server.route({
     method: 'GET',
     path: '/func',
-    handler: {
-      async: functionHandler
-    }
+    handler: functionHandler
   });
 
   server.route({
     method: 'GET',
     path: '/class',
-    handler: {
-      async: classHandler.handler.bind(classHandler)
-    }
+    handler: classHandler.handler.bind(classHandler)
   });
 
   return server;
 });
 
-dic.getAsync('server').then(server => {
-  server.start((err) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Server running at:', server.info.uri);
-  });
-});
+(async () => {
+  server = await dic.getAsync('server');
+  await server.start();
+  console.log('Server running at:', server.info.uri);
+})();
 ```
 
 # Development
