@@ -43,7 +43,7 @@ class DicLoader {
    * E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
    *
    * @param {Dic} dic
-   * @param {string} path glob expression {@link https://www.npmjs.com/package/globby}
+   * @param {string|string[]} path glob expression {@link https://www.npmjs.com/package/globby}
    * @param {Object} [opts]
    * @param {string} [opts.prefix=''] Instance name prefix
    * @param {string} [opts.rootDir] Overwrites loader's rootDir option

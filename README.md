@@ -98,6 +98,9 @@ dic.getAsync('myApp').then(app => {
 <dt><a href="#DicConfigLoader">DicConfigLoader</a></dt>
 <dd><p>Config loader - sets up Dic from the config (plain object)</p>
 </dd>
+<dt><a href="#DicFactory">DicFactory</a></dt>
+<dd><p>A factory</p>
+</dd>
 <dt><a href="#DicLoader">DicLoader</a></dt>
 <dd><p>Dic loader</p>
 </dd>
@@ -169,6 +172,27 @@ Set up Dic according the config
   }
 }
 ```
+<a name="DicFactory"></a>
+
+## DicFactory
+A factory
+
+**Kind**: global class  
+<a name="DicFactory.createDic"></a>
+
+### DicFactory.createDic(params) ⇒ <code>Object</code>
+Creates DIC instance, uses loader and config loader
+
+**Kind**: static method of <code>[DicFactory](#DicFactory)</code>  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| params | <code>Object</code> |  |  |
+| [params.debug] | <code>bool</code> | <code>false</code> |  |
+| [params.loaderRootDir] | <code>string</code> |  | [DicLoader#constructor](DicLoader#constructor) If specified, `params.loaderPaths` must be specified too. |
+| [params.loaderPath] | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> |  | [loadPath](#DicLoader+loadPath) |
+| [params.config] | <code>Object</code> |  | [loadConfig](#DicConfigLoader+loadConfig) |
+
 <a name="DicLoader"></a>
 
 ## DicLoader
@@ -223,7 +247,7 @@ E.g. `my-service.js` service would become registered as `myService` => file name
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | dic | <code>[Dic](#Dic)</code> |  |  |
-| path | <code>string</code> |  | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
+| path | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> |  | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
 | [opts] | <code>Object</code> |  |  |
 | [opts.prefix] | <code>string</code> | <code>&quot;&#x27;&#x27;&quot;</code> | Instance name prefix |
 | [opts.rootDir] | <code>string</code> |  | Overwrites loader's rootDir option |
@@ -655,10 +679,11 @@ dic.factory('app', function(
   return app;
 });
 
-dic.getAsync('app').then(app => {
+(async () => {
+  const app = await dic.getAsync('app');
   app.listen(3000);
   console.log('Running at: http://localhost:3000');
-})
+})();
 ```
 
 ## [Hapi](https://hapijs.com/)
@@ -719,30 +744,23 @@ dic.factory('server', function(
   server.route({
     method: 'GET',
     path: '/func',
-    handler: {
-      async: functionHandler
-    }
+    handler: functionHandler
   });
 
   server.route({
     method: 'GET',
     path: '/class',
-    handler: {
-      async: classHandler.handler.bind(classHandler)
-    }
+    handler: classHandler.handler.bind(classHandler)
   });
 
   return server;
 });
 
-dic.getAsync('server').then(server => {
-  server.start((err) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Server running at:', server.info.uri);
-  });
-});
+(async () => {
+  server = await dic.getAsync('server');
+  await server.start();
+  console.log('Server running at:', server.info.uri);
+})();
 ```
 
 # Development
