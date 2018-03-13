@@ -35,7 +35,7 @@ var DicFactory = function () {
      *
      * @param {Object} params
      * @param {bool} [params.debug=false]
-     * @param {string} [params.loaderRootDir] {@link DicLoader#constructor} If specified, `params.loaderPaths` must be specified too.
+     * @param {string} [params.loaderRootDir] {@link DicLoader#constructor} If specified, `params.loaderPath` must be specified too.
      * @param {string|string[]} [params.loaderPath] {@link DicLoader#loadPath}
      * @param {Object} [params.config] {@link DicConfigLoader#loadConfig}
      * @returns {{dic: Dic}}

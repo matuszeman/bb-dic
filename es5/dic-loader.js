@@ -1,9 +1,5 @@
 'use strict';
 
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
 var _getIterator2 = require('babel-runtime/core-js/get-iterator');
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
@@ -66,10 +62,20 @@ var DicLoader = function () {
    * File name dictates what name the service will be registered as.
    * E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
    *
+   * `opts.removeDuplicate` option
+   * If false, `user/user-service.js` would normally be aliased as `userUserService`.
+   * If true, this would be work like examples below:
+   * - `user/user-service.js` -> `userService`
+   * - `user-service/user-service.js` -> `userService`
+   * - `user-service/user-repository.js` -> `userServiceUserRepository`
+   * - `users/user-service.js` -> `usersUserService`
+   *
    * @param {Dic} dic
    * @param {string|string[]} path glob expression {@link https://www.npmjs.com/package/globby}
    * @param {Object} [opts]
    * @param {string} [opts.prefix=''] Instance name prefix
+   * @param {string} [opts.postfix=''] Instance name postfix
+   * @param {string} [opts.removeDuplicate=false] If true, remove duplicated folder/file names as described above.
    * @param {string} [opts.rootDir] Overwrites loader's rootDir option
    */
 
@@ -80,7 +86,9 @@ var DicLoader = function () {
       var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
       _.defaults(opts, {
-        prefix: ''
+        prefix: '',
+        postfix: '',
+        removeDuplicate: false
       });
 
       var rootDir = opts.rootDir ? opts.rootDir : this.options.rootDir;
@@ -107,34 +115,33 @@ var DicLoader = function () {
           var basename = nodePath.basename(relPath, '.js');
 
           var type = 'class';
-          var name = _.camelCase(basename);
+          var name = basename;
 
-          var match = basename.match(/(.*)\.(factory|async-factory|instance)$/);
-          if (match) {
-            name = _.camelCase(match[1]);
-            type = match[2];
+          var typeMatch = basename.match(/(.*)\.(factory|async-factory|instance)$/);
+          if (typeMatch) {
+            name = typeMatch[1];
+            type = typeMatch[2];
           }
 
-          var pathParts = relPath.split('/');
-          var prefixParts = opts.prefix ? [opts.prefix] : [];
-          if (pathParts.length > 1) {
-            //get rid of file name
-            pathParts.pop();
-            prefixParts.push.apply(prefixParts, (0, _toConsumableArray3.default)(pathParts));
+          var pathParts = relPath.split(nodePath.sep);
+          pathParts.pop();
+          pathParts.push(name);
+
+          if (opts.removeDuplicate) {
+            var spacedPath = pathParts.join(' ');
+            spacedPath = spacedPath.replace(/\b([\w\-]+)\s+\1\b/g, '$1');
+            pathParts = spacedPath.split(' ');
           }
 
-          var prefix = _.map(prefixParts, function (val, index) {
-            val = _.camelCase(val);
-            if (index > 0) {
-              val = _.upperFirst(val);
-            }
-            return val;
-          }).join('');
-
-          if (!_.isEmpty(prefix)) {
-            name = prefix + _.upperFirst(name);
+          if (opts.prefix) {
+            pathParts.unshift(opts.prefix);
           }
 
+          if (opts.postfix) {
+            pathParts.push(opts.postfix);
+          }
+
+          name = _.camelCase(pathParts.join('-'));
           if (this.options.debug) {
             console.log('DicLoader: ' + name + ' [' + type + '] -> ' + absPath);
           }

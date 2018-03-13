@@ -1,12 +1,13 @@
 const {expect} = require('chai');
 const SubOne = require('../test/dic-loader/sub/one');
+const DepService = require('../test/dic-loader/dep-service');
 const {DicFactory} = require('../src');
 
 describe('Example: DicFactory', () => {
   it('Instantiate dic using the factory, uses loader and config loader to register services', async () => {
     const config = {
       options: {
-        testService: 'some'
+        depService: 'some'
       }
     };
 
@@ -17,7 +18,8 @@ describe('Example: DicFactory', () => {
       config
     });
 
+    expect(dic.get('depService')).instanceof(DepService);
     expect(dic.get('subOne')).instanceof(SubOne);
-    expect(dic.get('testServiceOpts')).eql('some');
+    expect(dic.get('depServiceOpts')).eql('some');
   });
 });

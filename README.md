@@ -189,7 +189,7 @@ Creates DIC instance, uses loader and config loader
 | --- | --- | --- | --- |
 | params | <code>Object</code> |  |  |
 | [params.debug] | <code>bool</code> | <code>false</code> |  |
-| [params.loaderRootDir] | <code>string</code> |  | [DicLoader#constructor](DicLoader#constructor) If specified, `params.loaderPaths` must be specified too. |
+| [params.loaderRootDir] | <code>string</code> |  | [DicLoader#constructor](DicLoader#constructor) If specified, `params.loaderPath` must be specified too. |
 | [params.loaderPath] | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> |  | [loadPath](#DicLoader+loadPath) |
 | [params.config] | <code>Object</code> |  | [loadConfig](#DicConfigLoader+loadConfig) |
 
@@ -242,6 +242,14 @@ File types and what they should export
 File name dictates what name the service will be registered as.
 E.g. `my-service.js` service would become registered as `myService` => file name is camelCased.
 
+`opts.removeDuplicate` option
+If false, `user/user-service.js` would normally be aliased as `userUserService`.
+If true, this would be work like examples below:
+- `user/user-service.js` -> `userService`
+- `user-service/user-service.js` -> `userService`
+- `user-service/user-repository.js` -> `userServiceUserRepository`
+- `users/user-service.js` -> `usersUserService`
+
 **Kind**: instance method of <code>[DicLoader](#DicLoader)</code>  
 
 | Param | Type | Default | Description |
@@ -250,6 +258,8 @@ E.g. `my-service.js` service would become registered as `myService` => file name
 | path | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> |  | glob expression [https://www.npmjs.com/package/globby](https://www.npmjs.com/package/globby) |
 | [opts] | <code>Object</code> |  |  |
 | [opts.prefix] | <code>string</code> | <code>&quot;&#x27;&#x27;&quot;</code> | Instance name prefix |
+| [opts.postfix] | <code>string</code> | <code>&quot;&#x27;&#x27;&quot;</code> | Instance name postfix |
+| [opts.removeDuplicate] | <code>string</code> | <code>false</code> | If true, remove duplicated folder/file names as described above. |
 | [opts.rootDir] | <code>string</code> |  | Overwrites loader's rootDir option |
 
 <a name="Dic"></a>
