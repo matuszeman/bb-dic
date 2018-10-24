@@ -1,9 +1,8 @@
-'use strict';
+import * as _ from 'lodash';
+import * as acorn from 'acorn';
 
-const _ = require('lodash');
-const acorn = require('acorn');
-
-class Parser {
+export class Parser {
+  private options;
   constructor(options) {
     this.options = _.defaults({
       asyncInitMethodNames: ['asyncInit'],
@@ -69,7 +68,7 @@ class Parser {
         return this.parseNode(node.body);
         break;
       case 'ClassBody':
-        const ret = {
+        const ret: any = {
           factory: {
             type: 'ClassConstructor',
             params: []
@@ -109,7 +108,7 @@ class Parser {
         return ret;
         break;
       case 'FunctionDeclaration':
-        const ret1 = {};
+        const ret1: any = {};
         ret1.factory = {
           type: 'ClassConstructor',
           params: this.getFunctionParams(node)
@@ -130,5 +129,3 @@ class Parser {
   }
 
 }
-
-module.exports = Parser;

@@ -1,8 +1,6 @@
-'use strict';
-
-const _ = require('lodash');
-const Joi = require('joi');
-const Parser = require('./parser');
+import * as _ from 'lodash';
+import * as Joi from 'joi';
+import {Parser} from './parser';
 
 /**
  * Dependency injection container
@@ -25,7 +23,16 @@ const Parser = require('./parser');
  * const myService = dic.get('myService');
  *
  */
-class Dic {
+export class Dic {
+  private options;
+  private instances;
+  private parent;
+  private parentOptions;
+  private children;
+  private parser: Parser;
+
+  public factoryListener;
+
 
   /**
    * @param {Object} [options]
@@ -63,8 +70,6 @@ class Dic {
    *
    * Factory function is called asynchronously and should return an instance of the service.
    *
-   * @alias Dic#asyncFactory
-
    * @example
    * dic.instance('mongoConnectionOpts', { url: 'mongodb://localhost:27017/mydb' });
    * dic.asyncFactory('mongoConnection', async function(mongoConnectionOpts) {
@@ -75,8 +80,8 @@ class Dic {
    * @param {Function} factory
    * @param {defOpts} [opts]
    */
-  registerAsyncFactory(name, factory, opts = {}) {
-    this.log(`Adding async factory "${name}" Options: `, opts);//XXX
+  asyncFactory(name, factory, opts = {}) {
+    this.log(`Adding async factory "${name}" Options: ${JSON.stringify(opts, null, 2)}`);
 
     this.register(name ,_.defaults({
       type: 'asyncFactory',
@@ -84,16 +89,10 @@ class Dic {
     }, opts));
   }
 
-  asyncFactory() {
-    return this.registerAsyncFactory(...arguments);
-  }
-
   /**
    * Register a factory.
    *
    * The factory function should return an instance of the service.
-   *
-   * @alias Dic#factory
    *
    * @example
    * dic.instance('myServiceOpts', { some: 'thing' })
@@ -105,22 +104,16 @@ class Dic {
    * @param factory
    * @param {defOpts} [opts]
    */
-  registerFactory(name, factory, opts = {}) {
-    this.log(`Adding factory "${name}" Options: `, opts);//XXX
+  factory(name, factory, opts = {}) {
+    this.log(`Adding factory "${name}" Options: ${JSON.stringify(opts, null, 2)}`);
 
     this.register(name, _.defaults({
       factory: factory
     }, opts));
   }
 
-  factory() {
-    return this.registerFactory(...arguments);
-  }
-
   /**
    * Register an instance
-   *
-   * @alias Dic#instance
    *
    * @example
    *
@@ -131,22 +124,16 @@ class Dic {
    * @param name
    * @param instance
    */
-  registerInstance(name, ins, opts = {}) {
-    this.log(`Adding instance "${name}" Options: `, opts);//XXX
+  instance(name, ins, opts = {}) {
+    this.log(`Adding instance "${name}" Options: ${JSON.stringify(opts, null, 2)}`);
 
     this.register(name, _.defaults({
       instance: ins
     }, opts));
   }
 
-  instance() {
-    return this.registerInstance(...arguments);
-  }
-
   /**
    * Register a class
-   *
-   * @alias Dic#class
    *
    * @example // Class instance registration with dependency injection
    *
@@ -188,16 +175,12 @@ class Dic {
    * @param classDef
    * @param {defOpts} [opts]
    */
-  registerClass(name, classDef, opts = {}) {
-    this.log(`Adding class "${name}" Options: `, opts);//XXX
+  class(name, classDef, opts = {}) {
+    this.log(`Adding class "${name}" Options: ${JSON.stringify(opts, null, 2)}`);
 
     this.register(name, _.defaults({
       class: classDef
     }, opts));
-  }
-
-  class() {
-    return this.registerClass(...arguments);
   }
 
   register(name, def) {
@@ -312,7 +295,7 @@ class Dic {
     return 'Dic';
   }
 
-  throwError(msg, stack) {
+  throwError(msg, stack: string[] = []) {
     let stackStr = '';
     if (stack) {
       stackStr = '[' + stack.join(' > ') + ']';
@@ -331,7 +314,7 @@ class Dic {
    * @param {String} name
    * @returns {*}
    */
-  get(name, opts = {}) {
+  get(name, opts: any = {}) {
     opts = this._createOpts(name, opts);
     const def = this.instances[name];
     if (!def) {
@@ -385,7 +368,7 @@ class Dic {
    * @param {String} name
    * @returns {*}
    */
-  async getAsync(name, opts = {}) {
+  async getAsync(name, opts: any = {}) {
     opts = this._createOpts(name, opts);
     const def = this.instances[name];
     if (!def) {
@@ -505,13 +488,11 @@ class Dic {
    * // get a child service instance directly
    * const logger = dic.get('myPackage_logger');
    *
-   * @alias Dic#bind
-   *
    * @param {Dic} dic
    * @param {Object} opts
    * @param {String} opts.name Container services prefix name
    */
-  bindContainer(dic, opts = {}) {
+  bind(dic, opts: any = {}) {
     opts = Joi.attempt(opts, {
       name: Joi.string().required()
     });
@@ -520,10 +501,6 @@ class Dic {
     dic.parentOptions = opts;
 
     this.children[opts.name] = dic;
-  }
-
-  bind(dic, opts = {}) {
-    this.bindContainer(dic, opts);
   }
 
   getBoundContainer(name) {
@@ -659,7 +636,7 @@ class Dic {
     if (def.type === 'class') {
       if (_.isUndefined(def.asyncInit)) {
         const ret = this.parser.parseClass(def.class);
-        if (ret.init) {
+        if (``) {
           def.asyncInit = ret.init.name;
         }
       }
@@ -700,7 +677,7 @@ class Dic {
     });
   }
 
-  async _getServicesAsync(def, opts = {}) {
+  async _getServicesAsync(def: any, opts = {}) {
     const {container} = def;
     const params = this._getDefParams(def);
 
@@ -724,7 +701,7 @@ class Dic {
 
   _createOpts(service, opts) {
     const instanceOpts = _.cloneDeep(opts);
-    let stack = _.get(instanceOpts, 'stack');
+    let stack: any[] = _.get(instanceOpts, 'stack');
     if (!stack) {
       stack = [service ? service : '$this'];
     } else {
@@ -735,5 +712,3 @@ class Dic {
   }
 
 }
-
-module.exports = Dic;
