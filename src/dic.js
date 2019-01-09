@@ -632,21 +632,25 @@ class Dic {
    * E.g. `{ serviceA: 'serviceB' }` injects `serviceB` instance instead of `serviceA` to the class constructor/factory.
    */
   validateDef(def) {
-    def = Joi.attempt(def, Joi.object().keys({
-      name: Joi.string(),
-      type: Joi.string(),
-      instance: Joi.any(),
-      class: Joi.func(),
-      factory: Joi.func(),
-      asyncInit: Joi.any(),
-      params: Joi.array(),
-      paramsAlias: Joi.object().default({}),
-      asyncFactory: Joi.func(),
-      inject: Joi.object().default({}),
-      container: Joi.object().default(this) //type(Dic) - this does not work when having Dic from different packages obviously
-    }).options({
-      allowUnknown: true //e.g. asyncInitialized
-    }));
+    // def = Joi.attempt(def, Joi.object().keys({
+    //   name: Joi.string(),
+    //   type: Joi.string(),
+    //   instance: Joi.any(),
+    //   class: Joi.func(),
+    //   factory: Joi.func(),
+    //   asyncInit: Joi.any(),
+    //   params: Joi.array(),
+    //   paramsAlias: Joi.object().default({}),
+    //   asyncFactory: Joi.func(),
+    //   inject: Joi.object().default({}),
+    //   container: Joi.object().default(this) //type(Dic) - this does not work when having Dic from different packages obviously
+    // }).options({
+    //   allowUnknown: true //e.g. asyncInitialized
+    // }));
+
+    if (!def.instance && !def.class && !def.factory && !def.asyncFactory) {
+      throw new Error('One of [instance, class, factory, asyncFactory] must be defined');
+    }
 
     if (!def.type) {
       for (const type of ['class', 'factory', 'asyncFactory', 'instance']) {
@@ -655,6 +659,10 @@ class Dic {
         }
       }
     }
+
+    def.inject = def.inject || {};
+    def.paramsAlias = def.paramsAlias || {};
+    def.container = def.container || this;
 
     if (def.type === 'class') {
       if (_.isUndefined(def.asyncInit)) {
