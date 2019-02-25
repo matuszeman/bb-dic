@@ -123,7 +123,7 @@ var DicLoader = function () {
             type = typeMatch[2];
           }
 
-          var pathParts = relPath.split(nodePath.sep);
+          var pathParts = relPath.split(nodePath.posix.sep);
           pathParts.pop();
           pathParts.push(name);
 
