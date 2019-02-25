@@ -90,7 +90,7 @@ class DicLoader {
         type = typeMatch[2];
       }
 
-      let pathParts = relPath.split(nodePath.sep);
+      let pathParts = relPath.split(nodePath.posix.sep);
       pathParts.pop();
       pathParts.push(name);
 
